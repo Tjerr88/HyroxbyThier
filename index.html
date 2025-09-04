@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hyrox Pro Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={darkMode:'class'}</script>
+  <style>
+    :root { color-scheme: light dark; }
+    body { -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+    .card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:1rem; }
+    html.dark .card { background:#0f172a; border-color:rgba(255,255,255,.12); }
+    .btn { border-radius:1rem; padding:.9rem 1rem; border:1px solid rgba(0,0,0,.1); }
+    html.dark .btn { border-color: rgba(255,255,255,.14); }
+    .btn-primary { background:#0ea5e9; color:white; border-color:transparent; }
+    .btn-ghost { background:transparent; }
+    .btn-fw { width:100%; } @media (min-width:640px){ .btn-fw{ width:auto; } }
+    .tag { font-size:.75rem; padding:.3rem .6rem; border-radius:.6rem; border:1px solid rgba(0,0,0,.12); }
+    html.dark .tag { border-color: rgba(255,255,255,.16); }
+    summary { cursor:pointer; list-style:none; } summary::-webkit-details-marker { display:none; }
+    /* dark-mode form contrast */
+    select { background:#fff; color:#0f172a; } html.dark select { background:#111827; color:#e5e7eb; border-color:#374151; }
+    html.dark option { background:#111827; color:#e5e7eb; }
+    input[type="number"]{ background:transparent; color:inherit; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+  <div class="max-w-4xl mx-auto p-4 md:p-6">
+    <header class="flex items-start gap-3 sm:gap-4 mb-6">
+      <div class="flex-1">
+        <h1 class="text-2xl md:text-3xl font-semibold">Hyrox Pro Generator</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Volgorde: Complete → Engine → Strength → Interval → Engine → Aerobic.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="toggleTheme" class="btn btn-ghost btn-fw" title="Dark/Light">🌓</button>
+        <button id="copyBtn" class="btn btn-fw" title="Kopieer">Kopieer</button>
+      </div>
+    </header>
+
+    <section class="card p-4 md:p-5 mb-6">
+      <div class="grid sm:grid-cols-3 gap-3 sm:gap-4">
+        <div>
+          <label class="block text-sm mb-2">Automatisch</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button id="nextBtn" class="btn btn-primary btn-fw">🔁 Volgende</button>
+            <span id="rotInfo" class="tag self-start sm:self-auto">Stap —</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm mb-2">Duur</label>
+          <select id="duration" class="w-full border rounded-lg p-3">
+            <option value="short">Kort</option>
+            <option value="standard" selected>Normaal</option>
+            <option value="long">Lang</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm mb-2">Opties</label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="includeFinisher" type="checkbox" class="scale-125" checked>
+            Hyrox-finisher na Strength
+          </label>
+        </div>
+      </div>
+
+      <hr class="my-4 border-slate-200 dark:border-slate-700">
+
+      <details class="group mb-4">
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+          <span>Archetype override</span><span class="text-slate-400">▾</span>
+        </summary>
+        <div class="mt-3">
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <button class="btn btn-fw" data-arch="Complete">Complete</button>
+            <button class="btn btn-fw" data-arch="Engine">Engine</button>
+            <button class="btn btn-fw" data-arch="Strength">Strength</button>
+            <button class="btn btn-fw" data-arch="Interval">Interval</button>
+            <button class="btn btn-fw" data-arch="Aerobic">Aerobic</button>
+          </div>
+        </div>
+      </details>
+
+      <details class="group mb-4">
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+          <span>Hyrox Pro gewichten</span><span class="text-slate-400">▾</span>
+        </summary>
+        <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+          <label class="block">Sled Push (kg) <input id="wPush" type="number" value="202" class="w-full border rounded-lg p-2 mt-1"></label>
+          <label class="block">Sled Pull (kg) <input id="wPull" type="number" value="153" class="w-full border rounded-lg p-2 mt-1"></label>
+          <label class="block">Farmer (kg/hand) <input id="wFarmer" type="number" value="32" class="w-full border rounded-lg p-2 mt-1"></label>
+          <label class="block">Sandbag (kg) <input id="wSandbag" type="number" value="30" class="w-full border rounded-lg p-2 mt-1"></label>
+          <label class="block">Wall Ball (kg) <input id="wWB" type="number" value="9" class="w-full border rounded-lg p-2 mt-1"></label>
+        </div>
+      </details>
+
+      <details class="group mb-4">
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+          <span>Apparatuur</span><span class="text-slate-400">▾</span>
+        </summary>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="run" checked>Run</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="ski" checked>SkiErg</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="row" checked>RowErg</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="bike" checked>BikeErg</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="sled" checked>Sled</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="farmer" checked>Farmers</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="sandbag" checked>Sandbag</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="wallball" checked>Wall Balls</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="kb" checked>Kettlebell</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="bb" checked>Barbell</label>
+          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="rings" checked>Chins/Dips</label>
+        </div>
+      </details>
+
+      <details id="intervalPanel" class="group">
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+          <span>Interval-instellingen</span><span class="text-slate-400">▾</span>
+        </summary>
+        <div class="grid sm:grid-cols-4 gap-3 mt-3">
+          <label class="block text-sm"># Sets
+            <input id="intSets" type="number" min="4" max="15" value="8" class="w-full border rounded-lg p-2 mt-1">
+          </label>
+          <label class="block text-sm">Rust per set (s)
+            <input id="intRest" type="number" min="20" max="180" value="60" class="w-full border rounded-lg p-2 mt-1">
+          </label>
+          <label class="block text-sm">Set-stijl
+            <select id="intStyle" class="w-full border rounded-lg p-2 mt-1">
+              <option value="AFAP" selected>AFAP</option>
+              <option value="EMOM">EMOM</option>
+            </select>
+          </label>
+          <label class="block text-sm">Volgorde
+            <select id="intOrder" class="w-full border rounded-lg p-2 mt-1">
+              <option value="random" selected>Random (regels)</option>
+              <option value="fixed">Vast</option>
+            </select>
+          </label>
+        </div>
+      </details>
+
+      <div class="mt-4 grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+        <button id="saveBtn" class="btn btn-fw">Bewaar</button>
+        <button id="clearHistoryBtn" class="btn btn-ghost btn-fw">Wis</button>
+      </div>
+    </section>
+
+    <section id="output" class="card p-5 mb-6 whitespace-pre-wrap text-[15px] sm:text-base"></section>
+
+    <section class="card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold">Geschiedenis</h2>
+        <span id="histCount" class="tag">0 sessies</span>
+      </div>
+      <div id="history" class="space-y-3"></div>
+    </section>
+  </div>
+
+  <script>
+    // ===== Utilities =====
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+    const choice = a => a[Math.floor(Math.random()*a.length)];
+    const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+    const nowStr = () => new Date().toLocaleString();
+
+    // ===== Rotation =====
+    const WEEK_ROTATION = ["Complete","Engine","Strength","Interval","Engine","Aerobic"];
+    const ROT_KEY = "hyrox_rot_v8";
+    function rotationIndex(){ return +(localStorage.getItem(ROT_KEY) || 0); }
+    function setRotationIndex(i){ localStorage.setItem(ROT_KEY, i % WEEK_ROTATION.length); renderRotInfo(); }
+    function nextArch(){ const i = rotationIndex(); const arch = WEEK_ROTATION[i]; setRotationIndex(i+1); return arch; }
+    function renderRotInfo(){ const i = rotationIndex(); $("#rotInfo").textContent = `Stap ${i+1}/6 — ${WEEK_ROTATION[i]}`; }
+
+    // ===== Equip / Durations =====
+    function readEquip(){ const set = new Set(); $$(".eqp").forEach(cb=>{ if(cb.checked) set.add(cb.value) }); return set; }
+    function durations(){
+      const d = $("#duration").value;
+      if (d === "short") return { engine: 30, aerobic: choice([30,35]), completeRounds: 3, intervalSets: 6, finisher: 8 };
+      if (d === "long")  return { engine: 40, aerobic: choice([40,45]), completeRounds: 5, intervalSets: 10, finisher: 15 };
+      return { engine: 30, aerobic: choice([35,40]), completeRounds: 4, intervalSets: 8, finisher: 12 };
+    }
+
+    // ===== Pools (strength vs stations) =====
+    const lifts = {
+      // Strength-lifts (geen stations!)
+      squat: ["Back Squat (BB)","Front Squat (BB)","Goblet Squat (KB)","Step-up (DB/BB)","Box Pistol Squat"],
+      hinge: ["Deadlift (BB)","Romanian Deadlift (BB)","Hip Thrust (BB)","Kettlebell Swing (1-arm)","GHD Hip Extension","Single Leg Deadlift"],
+      press: ["Military Press (BB)","Push Press (BB)","DB Shoulder Press","Dips (rings/bars)","KB Military Press"],
+      pull:  ["One-arm Row (DB)","Bent-over Row (BB)","Chin-up / Pull-up","Renegade Row (DB)","Inverted Row (TRX)"]
+    };
+
+    // Stations voor Complete/Interval/Finisher (niet voor Strength)
+    const stations = {
+      wallballs: () => `Wall Balls ${$("#wWB").value} kg x ${choice([12,15,18,20])}`,
+      sledPush:  () => `Sled Push ${$("#wPush").value} kg x ${choice([10,15,20,25,30,40])} m`,
+      sledPull:  () => `Sled Pull ${$("#wPull").value} kg x ${choice([10,15,20,25,30,40])} m`,
+      farmer:    () => `Farmer Carry ${$("#wFarmer").value} kg/hand x ${choice([20,30,40])} m`,
+      lunges:    () => `Sandbag Lunges ${$("#wSandbag").value} kg x ${choice([10,15,20,25,30,40])} m`,
+      burpees:   () => `${choice([6,8,10])} Burpee Broad Jumps`,
+      erg: (m)=> `${choice(["RowErg","SkiErg","BikeErg"])} ${m} m`,
+      run: (m)=> `Run @ 2% incline ${m} m`
+    };
+
+    // ===== Strength: 2×10' density, 3–6 reps, automatische A/B-rotatie =====
+    const STR_ORDER_KEY = "hyrox_strength_order_ab_v1"; // "A" of "B"
+    function getStrengthOrder(){ return localStorage.getItem(STR_ORDER_KEY) || "A"; }
+    function flipStrengthOrder(){ const cur=getStrengthOrder(); localStorage.setItem(STR_ORDER_KEY, cur==="A"?"B":"A"); }
+
+    function buildStrength(){
+      const r = () => choice([3,4,5,6]);
+      const A = { // Sessie A: Blok1 Squat+Pull, Blok2 Hinge+Push
+        b1: [`${choice(lifts.squat)} — ${r()}`, `${choice(lifts.pull)} — ${r()}`],
+        b2: [`${choice(lifts.hinge)} — ${r()}`, `${choice(lifts.press)} — ${r()}`]
+      };
+      const B = { // Sessie B: omgedraaid
+        b1: [`${choice(lifts.hinge)} — ${r()}`, `${choice(lifts.press)} — ${r()}`],
+        b2: [`${choice(lifts.squat)} — ${r()}`, `${choice(lifts.pull)} — ${r()}`]
+      };
+      const ord = getStrengthOrder()==="A" ? A : B;
+
+      const txt = `Strength — 2×10 min density
+Blok 1 (10 min)
+• ${ord.b1.join("\n• ")}
+
+Blok 2 (10 min)
+• ${ord.b2.join("\n• ")}`;
+
+      // Na genereren: flip voor de volgende Strength-sessie
+      flipStrengthOrder();
+      return txt;
+    }
+
+    function buildFinisher(){
+      const st = shuffle([
+        `Sled Push ${$("#wPush").value} kg x 2×25 m`,
+        `Sled Pull ${$("#wPull").value} kg x 2×25 m`,
+        `Wall Balls ${$("#wWB").value} kg x 100`,
+        `Farmer Carry ${$("#wFarmer").value} kg/hand x 200 m`,
+        `Sandbag Lunges ${$("#wSandbag").value} kg x 100 m`,
+        `Burpee Broad Jumps 80 m`,
+        `SkiErg 1000 m`,
+        `RowErg 1000 m`
+      ]).slice(0,2);
+      return `Hyrox Finisher
+• ${st[0]}
+• ${st[1]}`;
+    }
+
+    // ===== Complete / Engine / Interval / Aerobic =====
+    function buildComplete(dur){
+      const r = ()=> choice([8,9,10,11,12]);
+      const push  = `${choice(lifts.press)} — ${r()}`;
+      const pull  = `${choice(lifts.pull)} — ${r()}`;
+      const squat = `${choice(lifts.squat)} — ${r()}`;
+      const hinge = `${choice(lifts.hinge)} — ${r()}`;
+      const cardio = choice([ stations.run(choice([250,400,600,800])), stations.erg(choice([250,400,600,800])) ]);
+      const station = choice([ stations.wallballs(), stations.sledPush(), stations.sledPull(), stations.lunges(), stations.farmer(), stations.burpees() ]);
+
+      return `Complete — ${nowStr()}
+
+Krachtcircuit — 3 rondes
+• ${push}
+• ${pull}
+• ${squat}
+• ${hinge}
+
+Daarna — ${dur.completeRounds} rondes
+• ${cardio}
+• ${station}`;
+    }
+
+    function buildEngine(dur){
+      const c1 = stations.run(choice([800,1000,1200,1600]));
+      const moveA = choice([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull]);
+      const moveB = choice([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull]);
+      const aReps = choice([20,25,30,35,40,45,50]);
+      const bReps = choice([20,25,30,35,40,45,50]);
+      const c2 = choice([ stations.run(choice([250,400,600,800])), stations.erg(choice([250,400,600,800])) ]);
+      return `Engine — ${dur.engine} min
+Cardio 1: ${c1}
+${moveA} — ${aReps}
+Cardio 2: ${c2}
+${moveB} — ${bReps}`;
+    }
+
+    function buildInterval(){
+      const sets  = Math.max(4, Math.min(15, +$("#intSets").value||8));
+      const rest  = Math.max(20, Math.min(180, +$("#intRest").value||60));
+      const style = $("#intStyle").value;
+      const order = $("#intOrder").value;
+
+      const seqOut = [];
+      let prevHeavy = false;
+      for (let i=1;i<=sets;i++){
+        const parts = [];
+        parts.push(choice([ stations.run(choice([100,150,200,250])), stations.erg(choice([100,150,200,250])) ]));
+
+        const bucket = ["sled","carry","wb","push","pull","squat","hinge","bw"];
+        const n = (order==="fixed") ? 3 : (Math.random()<0.6 ? 3 : 2);
+        let lastHeavy = prevHeavy;
+
+        for (let k=0;k<n;k++){
+          const pool = bucket.filter(c => !(lastHeavy && (c==="sled"||c==="carry")));
+          const cat = choice(pool);
+          let item;
+          if (cat==="sled"){
+            item = choice([ stations.sledPush(), stations.sledPull() ]);
+          } else if (cat==="carry"){
+            item = choice([ stations.farmer(), stations.lunges() ]);
+          } else if (cat==="wb"){
+            item = stations.wallballs();
+          } else if (cat==="bw"){
+            item = choice([ stations.burpees(), `Push-ups — ${choice([5,6,8,10])}`, `Jump Squats — ${choice([5,6,8,10])}` ]);
+          } else if (cat==="push"){
+            item = `${choice(lifts.press)} — ${choice([5,6,8,10])}`;
+          } else if (cat==="pull"){
+            item = `${choice(lifts.pull)} — ${choice([5,6,8,10])}`;
+          } else if (cat==="squat"){
+            item = `${choice(lifts.squat)} — ${choice([5,6,8,10])}`;
+          } else if (cat==="hinge"){
+            item = `${choice(lifts.hinge)} — ${choice([5,6,8,10])}`;
+          }
+          parts.push(item);
+          lastHeavy = (cat==="sled"||cat==="carry");
+        }
+
+        const head = style==="EMOM" ? `Set ${i}: EMOM` : `Set ${i}: AFAP, rust ${rest}s`;
+        seqOut.push(`${head}\n    - ${parts.join("\n    - ")}`);
+        prevHeavy = lastHeavy;
+      }
+      return `Interval — ${nowStr()}\n${seqOut.join("\n")}`;
+    }
+
+    function buildAerobic(dur){
+      const equip = readEquip();
+      const modal = choice(["Run","RowErg","SkiErg","BikeErg"].filter(m =>
+        (m==="Run"    && equip.has("run")) ||
+        (m==="RowErg" && equip.has("row")) ||
+        (m==="SkiErg" && equip.has("ski")) ||
+        (m==="BikeErg"&& equip.has("bike")
+      ))) || "BikeErg";
+      const modeText = (modal==="Run") ? "Run @ 2% incline" : modal;
+      return `Aerobic — ${dur.aerobic} min
+${modeText}`;
+    }
+
+    // ===== Core generator =====
+    const KEY = "hyrox_history_v9";
+    function generate(arch){
+      const dur = durations();
+      const out = [];
+
+      if (arch==="Complete"){ out.push(buildComplete(dur)); }
+      if (arch==="Engine"){ out.push(buildEngine(dur)); }
+      if (arch==="Strength"){
+        out.push(buildStrength());
+        if ($("#includeFinisher").checked){ out.push("", buildFinisher()); }
+      }
+      if (arch==="Interval"){ out.push(buildInterval()); }
+      if (arch==="Aerobic"){ out.push(buildAerobic(dur)); }
+
+      return out.join("\n");
+    }
+
+    // ===== History/UI =====
+    function loadHistory(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch{ return []; } }
+    function saveHistory(a){ localStorage.setItem(KEY, JSON.stringify(a.slice(-80))); renderHistory(); }
+    function renderHistory(){
+      const hist = loadHistory().slice().reverse();
+      $("#histCount").textContent = `${hist.length} sessies`;
+      const box = $("#history"); box.innerHTML="";
+      hist.forEach(t => { const d=document.createElement("div"); d.className="p-3 rounded-lg border border-slate-200 dark:border-slate-700"; d.textContent=t; box.appendChild(d); });
+    }
+    function setOutput(txt){ $("#output").textContent = txt; window.scrollTo({top:0,behavior:"smooth"}); }
+    function currentText(){ return $("#output").textContent.trim(); }
+
+    // Bindings
+    $("#nextBtn").addEventListener("click", ()=> setOutput(generate(nextArch())));
+    $$("[data-arch]").forEach(b=>b.addEventListener("click", ()=> setOutput(generate(b.dataset.arch))));
+    $("#saveBtn").addEventListener("click", ()=>{ const txt=currentText(); if(!txt) return; const h=loadHistory(); h.push(txt); saveHistory(h); });
+    $("#clearHistoryBtn").addEventListener("click", ()=>{ if (!confirm("Geschiedenis wissen?")) return; saveHistory([]); });
+    $("#copyBtn").addEventListener("click", async ()=>{
+      const txt=currentText(); if(!txt) return;
+      try{ await navigator.clipboard.writeText(txt); $("#copyBtn").textContent="Gekopieerd!"; setTimeout(()=>$("#copyBtn").textContent="Kopieer",1200);}catch{alert("Kopiëren niet gelukt.");}
+    });
+    $("#toggleTheme").addEventListener("click", ()=> document.documentElement.classList.toggle("dark"));
+
+    // Init
+    (function init(){
+      renderHistory();
+      renderRotInfo();
+      const arch = WEEK_ROTATION[rotationIndex()];
+      setOutput(generate(arch));
+    })();
+  </script>
+</body>
+</html>

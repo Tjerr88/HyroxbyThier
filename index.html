@@ -2,7 +2,7 @@
 <html lang="nl" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <title>Hyrox Pro Generator</title>
+  <title>Hyrox Pro Generator + Exercise Cards</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={darkMode:'class'}</script>
@@ -11,7 +11,7 @@
     body { -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
     .card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:1rem; }
     html.dark .card { background:#0f172a; border-color:rgba(255,255,255,.12); }
-    .btn { border-radius:1rem; padding:.9rem 1rem; border:1px solid rgba(0,0,0,.1); }
+    .btn { border-radius:1rem; padding:.8rem 1rem; border:1px solid rgba(0,0,0,.1); }
     html.dark .btn { border-color: rgba(255,255,255,.14); }
     .btn-primary { background:#0ea5e9; color:white; border-color:transparent; }
     .btn-ghost { background:transparent; }
@@ -19,28 +19,29 @@
     .tag { font-size:.75rem; padding:.3rem .6rem; border-radius:.6rem; border:1px solid rgba(0,0,0,.12); }
     html.dark .tag { border-color: rgba(255,255,255,.16); }
     summary { cursor:pointer; list-style:none; } summary::-webkit-details-marker { display:none; }
-    /* dark-mode form contrast */
-    select { background:#fff; color:#0f172a; } html.dark select { background:#111827; color:#e5e7eb; border-color:#374151; }
-    html.dark option { background:#111827; color:#e5e7eb; }
-    input[type="number"]{ background:transparent; color:inherit; }
+    select, input, textarea { background:transparent; color:inherit; }
+    /* Inputs inside cards */
+    .xcard input, .xcard select, .xcard textarea { border:1px solid rgba(0,0,0,.12); border-radius:.6rem; padding:.55rem .7rem; width:100%; }
+    html.dark .xcard input, html.dark .xcard select, html.dark .xcard textarea { border-color:rgba(255,255,255,.16); }
+    .muted { color:#64748b; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
-  <div class="max-w-4xl mx-auto p-4 md:p-6">
+  <div class="max-w-5xl mx-auto p-4 md:p-6">
     <header class="flex items-start gap-3 sm:gap-4 mb-6">
       <div class="flex-1">
         <h1 class="text-2xl md:text-3xl font-semibold">Hyrox Pro Generator</h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400">Volgorde: Complete → Engine → Strength → Interval → Engine → Aerobic.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Volgorde: Complete → Engine → Strength → Interval → Engine → Aerobic</p>
       </div>
       <div class="flex items-center gap-2">
         <button id="toggleTheme" class="btn btn-ghost btn-fw" title="Dark/Light">🌓</button>
-        <button id="copyBtn" class="btn btn-fw" title="Kopieer">Kopieer</button>
+        <button id="copyBtn" class="btn btn-fw" title="Kopieer plan">Kopieer plan</button>
       </div>
     </header>
 
     <section class="card p-4 md:p-5 mb-6">
-      <div class="grid sm:grid-cols-3 gap-3 sm:gap-4">
-        <div>
+      <div class="grid xl:grid-cols-6 lg:grid-cols-5 sm:grid-cols-3 grid-cols-1 gap-3 sm:gap-4">
+        <div class="xl:col-span-2">
           <label class="block text-sm mb-2">Automatisch</label>
           <div class="flex flex-col sm:flex-row gap-2">
             <button id="nextBtn" class="btn btn-primary btn-fw">🔁 Volgende</button>
@@ -49,10 +50,18 @@
         </div>
         <div>
           <label class="block text-sm mb-2">Duur</label>
-          <select id="duration" class="w-full border rounded-lg p-3">
+          <select id="duration" class="w-full rounded-lg p-3">
             <option value="short">Kort</option>
             <option value="standard" selected>Normaal</option>
             <option value="long">Lang</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm mb-2">Intensiteit</label>
+          <select id="intensity" class="w-full rounded-lg p-3">
+            <option value="deload">Deload</option>
+            <option value="normal" selected>Normaal</option>
+            <option value="hard">Zwaar</option>
           </select>
         </div>
         <div>
@@ -61,43 +70,46 @@
             <input id="includeFinisher" type="checkbox" class="scale-125" checked>
             Hyrox-finisher na Strength
           </label>
+          <label class="flex items-center gap-2 text-sm mt-2">
+            <input id="pinEnabled" type="checkbox" class="scale-125">
+            Pinnen: nieuwe training pas na "Voltooid"
+          </label>
+        </div>
+        <div>
+          <label class="block text-sm mb-2">Logs</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="saveLogsBtn" class="btn btn-fw">Bewaar logs</button>
+            <button id="exportCsvBtn" class="btn btn-ghost btn-fw">Export CSV</button>
+          </div>
         </div>
       </div>
 
       <hr class="my-4 border-slate-200 dark:border-slate-700">
 
       <details class="group mb-4">
-        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
-          <span>Archetype override</span><span class="text-slate-400">▾</span>
-        </summary>
-        <div class="mt-3">
-          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-            <button class="btn btn-fw" data-arch="Complete">Complete</button>
-            <button class="btn btn-fw" data-arch="Engine">Engine</button>
-            <button class="btn btn-fw" data-arch="Strength">Strength</button>
-            <button class="btn btn-fw" data-arch="Interval">Interval</button>
-            <button class="btn btn-fw" data-arch="Aerobic">Aerobic</button>
-          </div>
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"><span>Archetype override</span><span class="text-slate-400">▾</span></summary>
+        <div class="mt-3 grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <button class="btn btn-fw" data-arch="Complete">Complete</button>
+          <button class="btn btn-fw" data-arch="Engine">Engine</button>
+          <button class="btn btn-fw" data-arch="Strength">Strength</button>
+          <button class="btn btn-fw" data-arch="Interval">Interval</button>
+          <button class="btn btn-fw" data-arch="Aerobic">Aerobic</button>
         </div>
       </details>
 
       <details class="group mb-4">
-        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
-          <span>Hyrox Pro gewichten</span><span class="text-slate-400">▾</span>
-        </summary>
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"><span>Hyrox Pro gewichten</span><span class="text-slate-400">▾</span></summary>
         <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
-          <label class="block">Sled Push (kg) <input id="wPush" type="number" value="202" class="w-full border rounded-lg p-2 mt-1"></label>
-          <label class="block">Sled Pull (kg) <input id="wPull" type="number" value="153" class="w-full border rounded-lg p-2 mt-1"></label>
-          <label class="block">Farmer (kg/hand) <input id="wFarmer" type="number" value="32" class="w-full border rounded-lg p-2 mt-1"></label>
-          <label class="block">Sandbag (kg) <input id="wSandbag" type="number" value="30" class="w-full border rounded-lg p-2 mt-1"></label>
-          <label class="block">Wall Ball (kg) <input id="wWB" type="number" value="9" class="w-full border rounded-lg p-2 mt-1"></label>
+          <label class="block">Sled Push (kg) <input id="wPush" type="number" value="202" class="w-full rounded-lg p-2 mt-1"></label>
+          <label class="block">Sled Pull (kg) <input id="wPull" type="number" value="153" class="w-full rounded-lg p-2 mt-1"></label>
+          <label class="block">Farmer (kg/hand) <input id="wFarmer" type="number" value="32" class="w-full rounded-lg p-2 mt-1"></label>
+          <label class="block">Sandbag (kg) <input id="wSandbag" type="number" value="30" class="w-full rounded-lg p-2 mt-1"></label>
+          <label class="block">Wall Ball (kg) <input id="wWB" type="number" value="9" class="w-full rounded-lg p-2 mt-1"></label>
         </div>
       </details>
 
       <details class="group mb-4">
-        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
-          <span>Apparatuur</span><span class="text-slate-400">▾</span>
-        </summary>
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"><span>Apparatuur</span><span class="text-slate-400">▾</span></summary>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3 text-sm">
           <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="run" checked>Run</label>
           <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="ski" checked>SkiErg</label>
@@ -114,24 +126,18 @@
       </details>
 
       <details id="intervalPanel" class="group">
-        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
-          <span>Interval-instellingen</span><span class="text-slate-400">▾</span>
-        </summary>
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"><span>Interval-instellingen</span><span class="text-slate-400">▾</span></summary>
         <div class="grid sm:grid-cols-4 gap-3 mt-3">
-          <label class="block text-sm"># Sets
-            <input id="intSets" type="number" min="4" max="15" value="8" class="w-full border rounded-lg p-2 mt-1">
-          </label>
-          <label class="block text-sm">Rust per set (s)
-            <input id="intRest" type="number" min="20" max="180" value="60" class="w-full border rounded-lg p-2 mt-1">
-          </label>
+          <label class="block text-sm"># Sets <input id="intSets" type="number" min="4" max="15" value="8" class="w-full rounded-lg p-2 mt-1"></label>
+          <label class="block text-sm">Rust per set (s) <input id="intRest" type="number" min="20" max="180" value="60" class="w-full rounded-lg p-2 mt-1"></label>
           <label class="block text-sm">Set-stijl
-            <select id="intStyle" class="w-full border rounded-lg p-2 mt-1">
+            <select id="intStyle" class="w-full rounded-lg p-2 mt-1">
               <option value="AFAP" selected>AFAP</option>
               <option value="EMOM">EMOM</option>
             </select>
           </label>
           <label class="block text-sm">Volgorde
-            <select id="intOrder" class="w-full border rounded-lg p-2 mt-1">
+            <select id="intOrder" class="w-full rounded-lg p-2 mt-1">
               <option value="random" selected>Random (regels)</option>
               <option value="fixed">Vast</option>
             </select>
@@ -139,13 +145,31 @@
         </div>
       </details>
 
+      <details id="needsPanel" class="group mt-4">
+        <summary class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300"><span>Benodigdheden</span><span class="text-slate-400">▾</span></summary>
+        <ul id="needsList" class="mt-3 text-sm text-slate-700 dark:text-slate-300 list-disc pl-5 space-y-1"></ul>
+      </details>
+
       <div class="mt-4 grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-        <button id="saveBtn" class="btn btn-fw">Bewaar</button>
-        <button id="clearHistoryBtn" class="btn btn-ghost btn-fw">Wis</button>
+        <button id="savePlanBtn" class="btn btn-fw">Bewaar plan</button>
+        <button id="markDoneBtn" class="btn btn-fw">✅ Markeer als voltooid</button>
+        <button id="clearHistoryBtn" class="btn btn-ghost btn-fw">Wis geschiedenis</button>
       </div>
     </section>
 
-    <section id="output" class="card p-5 mb-6 whitespace-pre-wrap text-[15px] sm:text-base"></section>
+    <section id="pinNote" class="hidden card p-3 mb-3 text-sm text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-200 dark:bg-amber-900/30 dark:border-amber-700">
+      Pinnen staat aan: er wordt pas een nieuwe training gegenereerd als je de huidige <b>Voltooid</b> markeert.
+    </section>
+
+    <section id="output" class="card p-5 mb-3 whitespace-pre-wrap text-[15px] sm:text-base"></section>
+
+    <section class="card p-5 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold">Exercise Cards</h2>
+        <span class="text-sm muted">Gewicht/RPE/reps/afstand + notities. Laatste gebruikte gewichten worden onthouden.</span>
+      </div>
+      <div id="cards" class="grid md:grid-cols-2 gap-3"></div>
+    </section>
 
     <section class="card p-5">
       <div class="flex items-center justify-between mb-3">
@@ -163,72 +187,175 @@
     const choice = a => a[Math.floor(Math.random()*a.length)];
     const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
     const nowStr = () => new Date().toLocaleString();
+    const pick = arr => choice(arr);
+    const toast = (msg)=>{
+      let t=document.createElement('div');
+      t.textContent = msg;
+      t.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-black/80 text-white text-sm z-50';
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.remove(); }, 1600);
+    };
 
     // ===== Rotation =====
-    const WEEK_ROTATION = ["Complete","Engine","Strength","Interval","Engine","Aerobic"];
-    const ROT_KEY = "hyrox_rot_v8";
+    const WEEK_ROTATION = [ "Complete", "Engine", "Strength", "Interval", "Engine", "Aerobic" ];
+    const ROT_KEY = "hyrox_rot_full_v1";
     function rotationIndex(){ return +(localStorage.getItem(ROT_KEY) || 0); }
     function setRotationIndex(i){ localStorage.setItem(ROT_KEY, i % WEEK_ROTATION.length); renderRotInfo(); }
     function nextArch(){ const i = rotationIndex(); const arch = WEEK_ROTATION[i]; setRotationIndex(i+1); return arch; }
     function renderRotInfo(){ const i = rotationIndex(); $("#rotInfo").textContent = `Stap ${i+1}/6 — ${WEEK_ROTATION[i]}`; }
 
-    // ===== Equip / Durations =====
-    function readEquip(){ const set = new Set(); $$(".eqp").forEach(cb=>{ if(cb.checked) set.add(cb.value) }); return set; }
-    function durations(){
-      const d = $("#duration").value;
-      if (d === "short") return { engine: 30, aerobic: choice([30,35]), completeRounds: 3, intervalSets: 6, finisher: 8 };
-      if (d === "long")  return { engine: 40, aerobic: choice([40,45]), completeRounds: 5, intervalSets: 10, finisher: 15 };
-      return { engine: 30, aerobic: choice([35,40]), completeRounds: 4, intervalSets: 8, finisher: 12 };
+    // ===== Pinning (lock current session until completed) =====
+    const PIN_ON_KEY = "hyrox_pin_on_v1";
+    const PIN_SESSION_KEY = "hyrox_pinned_session_v1"; // stores CURRENT_SESSION object
+    function pinEnabled(){ return !!JSON.parse(localStorage.getItem(PIN_ON_KEY) || "false"); }
+    function setPinEnabled(v){ localStorage.setItem(PIN_ON_KEY, JSON.stringify(!!v)); renderPinNote(); }
+    function getPinned(){ try { return JSON.parse(localStorage.getItem(PIN_SESSION_KEY) || "null"); } catch { return null; } }
+    function setPinned(sess){ localStorage.setItem(PIN_SESSION_KEY, JSON.stringify(sess)); }
+    function clearPinned(){ localStorage.removeItem(PIN_SESSION_KEY); }
+
+    function renderPinNote(){
+      const on = pinEnabled();
+      $("#pinNote").classList.toggle("hidden", !on);
+      $("#pinEnabled").checked = on;
     }
 
-    // ===== Pools (strength vs stations) =====
+    // ===== Durations / Intensity =====
+    function durations(){
+      const d = $("#duration").value;
+      if (d === "short") return { engine: 30, aerobic: pick([30,35]), completeRounds: 3, intervalSets: 6, finisher: 8 };
+      if (d === "long")  return { engine: 40, aerobic: pick([40,45]), completeRounds: 5, intervalSets: 10, finisher: 15 };
+      return { engine: 30, aerobic: pick([35,40]), completeRounds: 4, intervalSets: 8, finisher: 12 };
+    }
+    function intensity(){
+      const v = $("#intensity").value;
+      if (v==="deload") return { name:"Deload", repsStr:"RPE 6–7", strMin:3, strMax:5, wb:[12,15], sled:[10,15,20], carry:[20,30], cardioShort:[250,400], cardioLong:[800,1000], engineCue:"RPE 7", defaultRPE:7 };
+      if (v==="hard")   return { name:"Zwaar",  repsStr:"RPE 8–9", strMin:4, strMax:6, wb:[15,18,20], sled:[20,25,30,40], carry:[30,40], cardioShort:[600,800], cardioLong:[1200,1600], engineCue:"RPE 7–8", defaultRPE:9 };
+      return { name:"Normaal", repsStr:"RPE 7–8", strMin:3, strMax:6, wb:[12,15,18,20], sled:[15,20,25,30], carry:[20,30,40], cardioShort:[400,600], cardioLong:[800,1200], engineCue:"RPE 7", defaultRPE:8 };
+    }
+
+    // ===== Pools =====
     const lifts = {
-      // Strength-lifts (geen stations!)
       squat: ["Back Squat (BB)","Front Squat (BB)","Goblet Squat (KB)","Step-up (DB/BB)","Box Pistol Squat"],
       hinge: ["Deadlift (BB)","Romanian Deadlift (BB)","Hip Thrust (BB)","Kettlebell Swing (1-arm)","GHD Hip Extension","Single Leg Deadlift"],
       press: ["Military Press (BB)","Push Press (BB)","DB Shoulder Press","Dips (rings/bars)","KB Military Press"],
-      pull:  ["One-arm Row (DB)","Bent-over Row (BB)","Chin-up / Pull-up","Renegade Row (DB)","Inverted Row (TRX)"]
+      pull:  ["One-arm Row (DB)","Bent-over Row (BB)","Chin-up / Pull-up","Renegade Row (DB)","Inverted Row (TRX)"],
+      lunge: ["Split Squat (DB/BB/KB)","Reverse Lunge (DB/BB)","Walking Lunge (DB/KB)","Front Rack Lunge (BB/KB)"],
+      rotation: ["Cable Chop","Cable Lift","Landmine Rotational Press","Med Ball Rotational Throw"],
+      antirot: ["Pallof Press (band/cable)","Pallof Hold (band/cable)","Anti-rotation Press (half-kneeling)","Offset Farmer Carry"]
     };
 
-    // Stations voor Complete/Interval/Finisher (niet voor Strength)
+    // ===== Stations (Hyrox volumes) =====
     const stations = {
-      wallballs: () => `Wall Balls ${$("#wWB").value} kg x ${choice([12,15,18,20])}`,
-      sledPush:  () => `Sled Push ${$("#wPush").value} kg x ${choice([10,15,20,25,30,40])} m`,
-      sledPull:  () => `Sled Pull ${$("#wPull").value} kg x ${choice([10,15,20,25,30,40])} m`,
-      farmer:    () => `Farmer Carry ${$("#wFarmer").value} kg/hand x ${choice([20,30,40])} m`,
-      lunges:    () => `Sandbag Lunges ${$("#wSandbag").value} kg x ${choice([10,15,20,25,30,40])} m`,
-      burpees:   () => `${choice([6,8,10])} Burpee Broad Jumps`,
-      erg: (m)=> `${choice(["RowErg","SkiErg","BikeErg"])} ${m} m`,
-      run: (m)=> `Run @ 2% incline ${m} m`
+      wallballs: wbArr => `Wall Balls ${$("#wWB").value} kg x ${pick(wbArr)}`,
+      sledPush:  sledArr=> `Sled Push ${$("#wPush").value} kg x ${pick(sledArr)} m`,
+      sledPull:  sledArr=> `Sled Pull ${$("#wPull").value} kg x ${pick(sledArr)} m`,
+      farmer:    carrArr=> `Farmer Carry ${$("#wFarmer").value} kg/hand x ${pick(carrArr)} m`,
+      lunges:    sledArr=> `Sandbag Lunges ${$("#wSandbag").value} kg x ${pick(sledArr)} m`,
+      burpees:   ()=> `${pick([6,8,10])} Burpee Broad Jumps`,
+      erg: m => `${pick(["RowErg","SkiErg","BikeErg"])} ${m} m`,
+      run: m => `Run @ 2% incline ${m} m`
     };
 
-    // ===== Strength: 2×10' density, 3–6 reps, automatische A/B-rotatie =====
-    const STR_ORDER_KEY = "hyrox_strength_order_ab_v1"; // "A" of "B"
-    function getStrengthOrder(){ return localStorage.getItem(STR_ORDER_KEY) || "A"; }
-    function flipStrengthOrder(){ const cur=getStrengthOrder(); localStorage.setItem(STR_ORDER_KEY, cur==="A"?"B":"A"); }
+    // ===== Needs =====
+    let NEEDS = new Set();
+    const addNeed = x => x && NEEDS.add(x);
+    const addBarbell=()=>addNeed("Barbell + plates");
+    const addDB=()=>addNeed("Dumbbells");
+    const addKB=()=>addNeed("Kettlebells");
+    const addBench=()=>addNeed("Bench/box");
+    const addBox=()=>addNeed("Plyo box/step");
+    const addRings=()=>addNeed("Rings/TRX of pull-up bar");
+    const addGHD=()=>addNeed("GHD");
+    const addSled=()=>addNeed("Sled + plates");
+    const addSandbag=()=>addNeed("Sandbag");
+    const addWallball=()=>addNeed("Wall ball + target");
+    const addFarmer=()=>addNeed("Kettlebell-paar (farmers)");
+    const addErg=type=>{ if(type.includes("Ski")) addNeed("SkiErg"); if(type.includes("Row")) addNeed("RowErg"); if(type.includes("Bike")) addNeed("BikeErg"); };
+    const addRun=()=>addNeed("Treadmill @ 2% incline");
+    const addCable=()=>addNeed("Cable/band anchor");
+    const addBands=()=>addNeed("Resistance bands");
+    const addLandmine=()=>addNeed("Landmine/TC attachment");
+    const addMedball=()=>addNeed("Medicine ball");
 
+    function resetNeeds(){ NEEDS = new Set(); }
+    function renderNeeds(){
+      const list = $("#needsList");
+      const items = Array.from(NEEDS).sort((a,b)=>a.localeCompare(b));
+      list.innerHTML = items.length ? items.map(x=>`<li>${x}</li>`).join("") : `<li>Geen specifieke materialen nodig.</li>`;
+    }
+
+    function mapLiftNeeds(name){
+      if (name.includes("(BB)") || ["Deadlift","Romanian Deadlift","Hip Thrust","Military Press","Push Press","Bent-over Row","Front Rack"].some(k=>name.includes(k))) addBarbell();
+      if (name.includes("(DB)") || ["Dumbbell","Renegade Row"].some(k=>name.includes(k))) addDB();
+      if (name.includes("(KB)") || name.includes("Kettlebell")) addKB();
+      if (name.includes("Hip Thrust") || name.includes("Glute Bridge")) addBench();
+      if (name.includes("Step-up") || name.includes("Box")) addBox();
+      if (["Chin-up","Pull-up","Inverted Row","Toes-to-Bar","Dips"].some(k=>name.includes(k))) addRings();
+      if (name.includes("GHD")) addGHD();
+      if (name.includes("Single Leg Deadlift")) addKB();
+      if (name.includes("Cable")) addCable();
+      if (name.includes("Pallof")) { addCable(); addBands(); }
+      if (name.includes("Landmine")) addLandmine();
+      if (name.includes("Med Ball") || name.includes("Medicine")) addMedball();
+      if (name.includes("Lunge")) { if (name.includes("Front Rack")) addBarbell(); else addDB(); }
+      if (name.includes("Split Squat")) addDB();
+      if (name.includes("Offset Farmer")) { addFarmer(); addKB(); }
+    }
+    function mapStationNeeds(text){
+      if (text.includes("Sled Push") || text.includes("Sled Pull")) addSled();
+      if (text.includes("Farmer Carry")) addFarmer();
+      if (text.includes("Sandbag Lunge")) addSandbag();
+      if (text.includes("Wall Balls")) addWallball();
+      if (text.includes("Run @ 2% incline")) addRun();
+      if (text.includes("RowErg")) addErg("RowErg");
+      if (text.includes("SkiErg")) addErg("SkiErg");
+      if (text.includes("BikeErg")) addErg("BikeErg");
+    }
+
+    // ===== Strength A/B rotatie =====
+    const STR_ORDER_KEY = "hyrox_strength_order_ab_full_v1";
+    const getStrengthOrder = ()=> localStorage.getItem(STR_ORDER_KEY) || "A";
+    const flipStrengthOrder = ()=> localStorage.setItem(STR_ORDER_KEY, getStrengthOrder()==="A"?"B":"A");
+
+    // ===== Persistent loads (last used per exercise) =====
+    const LOADS_KEY = "hyrox_last_loads_v1"; // map: { "Back Squat (BB)": "100", ... }
+    function loadLoads(){ try{ return JSON.parse(localStorage.getItem(LOADS_KEY)||"{}"); }catch{ return {}; } }
+    function saveLoads(map){ localStorage.setItem(LOADS_KEY, JSON.stringify(map)); }
+    function setLastLoad(ex, val){
+      const m = loadLoads();
+      m[ex] = val;
+      saveLoads(m);
+    }
+    function getLastLoad(ex){ const m = loadLoads(); return m[ex] || ""; }
+
+    // ===== Exercise capture =====
+    let CURRENT_SESSION = { arch:"", planText:"", when:"", intensity:"", items:[], completed:false };
+    const addItem = obj => CURRENT_SESSION.items.push(obj);
+    const defaultRPE = ()=> intensity().defaultRPE;
+
+    // ===== Builders =====
     function buildStrength(){
-      const r = () => choice([3,4,5,6]);
-      const A = { // Sessie A: Blok1 Squat+Pull, Blok2 Hinge+Push
-        b1: [`${choice(lifts.squat)} — ${r()}`, `${choice(lifts.pull)} — ${r()}`],
-        b2: [`${choice(lifts.hinge)} — ${r()}`, `${choice(lifts.press)} — ${r()}`]
-      };
-      const B = { // Sessie B: omgedraaid
-        b1: [`${choice(lifts.hinge)} — ${r()}`, `${choice(lifts.press)} — ${r()}`],
-        b2: [`${choice(lifts.squat)} — ${r()}`, `${choice(lifts.pull)} — ${r()}`]
-      };
+      const it = intensity();
+      const r = () => pick([...Array(it.strMax - it.strMin + 1)].map((_,i)=>i+it.strMin)); // 3–6
+      const A = { b1: [ pick(lifts.squat), pick(lifts.pull) ], b2: [ pick(lifts.hinge), pick(lifts.press) ] };
+      const B = { b1: [ pick(lifts.hinge), pick(lifts.press) ], b2: [ pick(lifts.squat), pick(lifts.pull) ] };
       const ord = getStrengthOrder()==="A" ? A : B;
 
-      const txt = `Strength — 2×10 min density
+      const all = [...ord.b1, ...ord.b2];
+      all.forEach(n => { mapLiftNeeds(n); addItem({name:n, target:`${r()} reps`, type:"strength", loadable:true, rpe: defaultRPE()}); });
+
+      const fmt = n => `${n} — ${r()} • ~80–87%1RM ${it.repsStr}`;
+      const b1Txt = ord.b1.map(fmt).join("\n• ");
+      const b2Txt = ord.b2.map(fmt).join("\n• ");
+
+      flipStrengthOrder();
+
+      return `Strength — 2×10 min density
 Blok 1 (10 min)
-• ${ord.b1.join("\n• ")}
+• ${b1Txt}
 
 Blok 2 (10 min)
-• ${ord.b2.join("\n• ")}`;
-
-      // Na genereren: flip voor de volgende Strength-sessie
-      flipStrengthOrder();
-      return txt;
+• ${b2Txt}`;
     }
 
     function buildFinisher(){
@@ -242,49 +369,82 @@ Blok 2 (10 min)
         `SkiErg 1000 m`,
         `RowErg 1000 m`
       ]).slice(0,2);
+
+      st.forEach(s => {
+        mapStationNeeds(s);
+        addItem({name:s, target:"finisher", type:"finisher", loadable: /(Sled|Wall Balls|Farmer|Sandbag)/.test(s), rpe: defaultRPE()});
+      });
+
       return `Hyrox Finisher
 • ${st[0]}
 • ${st[1]}`;
     }
 
-    // ===== Complete / Engine / Interval / Aerobic =====
     function buildComplete(dur){
-      const r = ()=> choice([8,9,10,11,12]);
-      const push  = `${choice(lifts.press)} — ${r()}`;
-      const pull  = `${choice(lifts.pull)} — ${r()}`;
-      const squat = `${choice(lifts.squat)} — ${r()}`;
-      const hinge = `${choice(lifts.hinge)} — ${r()}`;
-      const cardio = choice([ stations.run(choice([250,400,600,800])), stations.erg(choice([250,400,600,800])) ]);
-      const station = choice([ stations.wallballs(), stations.sledPush(), stations.sledPull(), stations.lunges(), stations.farmer(), stations.burpees() ]);
+      const it = intensity();
+      const r8_12 = () => pick([8,9,10,11,12]);
+
+      const push   = pick(lifts.press);  mapLiftNeeds(push);
+      const pull   = pick(lifts.pull);   mapLiftNeeds(pull);
+      const squat  = pick(lifts.squat);  mapLiftNeeds(squat);
+      const hinge  = pick(lifts.hinge);  mapLiftNeeds(hinge);
+      const lunge  = pick(lifts.lunge);  mapLiftNeeds(lunge);
+
+      [push,pull,squat,hinge,lunge].forEach(n => addItem({name:n, target:`${r8_12()} reps`, type:"hypertrofie", loadable:true, rpe: defaultRPE()}));
+
+      const cShort = intensity().cardioShort;
+      const cardio = pick([ stations.run(pick(cShort)), stations.erg(pick(cShort)) ]);
+      const station = pick([ stations.wallballs(intensity().wb), stations.sledPush(intensity().sled), stations.sledPull(intensity().sled),
+                             stations.lunges(intensity().sled), stations.farmer(intensity().carry), stations.burpees() ]);
+      mapStationNeeds(cardio); mapStationNeeds(station);
+      addItem({name:cardio, target:"", type:"cardio", loadable:false, rpe: defaultRPE()});
+      addItem({name:station, target:"", type:"station", loadable: /(Sled|Wall Balls|Farmer|Sandbag)/.test(station), rpe: defaultRPE()});
+
+      const useRotation = Math.random() < 0.5;
+      const coreEx = useRotation ? pick(lifts.rotation) : pick(lifts.antirot);
+      mapLiftNeeds(coreEx);
+      addItem({name:coreEx, target:"12–15/zijde", type:"core", loadable:false, rpe: defaultRPE()});
 
       return `Complete — ${nowStr()}
 
 Krachtcircuit — 3 rondes
-• ${push}
-• ${pull}
-• ${squat}
-• ${hinge}
+• ${push} — ${r8_12()} • ${it.repsStr}
+• ${pull} — ${r8_12()} • ${it.repsStr}
+• ${squat} — ${r8_12()} • ${it.repsStr}
+• ${hinge} — ${r8_12()} • ${it.repsStr}
+• ${lunge} — ${r8_12()} • ${it.repsStr}
 
 Daarna — ${dur.completeRounds} rondes
 • ${cardio}
-• ${station}`;
+• ${station}
+
+Core — 2 rondes
+• ${coreEx} — 12–15/zijde`;
     }
 
     function buildEngine(dur){
-      const c1 = stations.run(choice([800,1000,1200,1600]));
-      const moveA = choice([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull]);
-      const moveB = choice([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull]);
-      const aReps = choice([20,25,30,35,40,45,50]);
-      const bReps = choice([20,25,30,35,40,45,50]);
-      const c2 = choice([ stations.run(choice([250,400,600,800])), stations.erg(choice([250,400,600,800])) ]);
+      const it = intensity();
+      const c1 = stations.run(pick(it.cardioLong)); mapStationNeeds(c1);
+      const moveA = pick([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull, ...lifts.lunge]); mapLiftNeeds(moveA);
+      const moveB = pick([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull, ...lifts.lunge]); mapLiftNeeds(moveB);
+      const aReps = pick([20,25,30,35,40,45,50]);
+      const bReps = pick([20,25,30,35,40,45,50]);
+      const c2 = pick([ stations.run(pick(it.cardioShort)), stations.erg(pick(it.cardioShort)) ]); mapStationNeeds(c2);
+
+      addItem({name:c1, target:"", type:"cardio", loadable:false, rpe: it.defaultRPE});
+      addItem({name:moveA, target:`${aReps} reps`, type:"assistance", loadable:true, rpe: defaultRPE()});
+      addItem({name:c2, target:"", type:"cardio", loadable:false, rpe: it.defaultRPE});
+      addItem({name:moveB, target:`${bReps} reps`, type:"assistance", loadable:true, rpe: defaultRPE()});
+
       return `Engine — ${dur.engine} min
 Cardio 1: ${c1}
-${moveA} — ${aReps}
+${moveA} — ${aReps} • ${it.engineCue}
 Cardio 2: ${c2}
-${moveB} — ${bReps}`;
+${moveB} — ${bReps} • ${it.engineCue}`;
     }
 
     function buildInterval(){
+      const it = intensity();
       const sets  = Math.max(4, Math.min(15, +$("#intSets").value||8));
       const rest  = Math.max(20, Math.min(180, +$("#intRest").value||60));
       const style = $("#intStyle").value;
@@ -292,36 +452,45 @@ ${moveB} — ${bReps}`;
 
       const seqOut = [];
       let prevHeavy = false;
+
       for (let i=1;i<=sets;i++){
         const parts = [];
-        parts.push(choice([ stations.run(choice([100,150,200,250])), stations.erg(choice([100,150,200,250])) ]));
+        const c = pick([ stations.run(pick([100,150,200,250])), stations.erg(pick([100,150,200,250])) ]);
+        parts.push(c); mapStationNeeds(c);
+        addItem({name:`Set ${i} cardio`, target:c, type:"interval", loadable:false, rpe: defaultRPE()});
 
-        const bucket = ["sled","carry","wb","push","pull","squat","hinge","bw"];
+        const bucket = ["sled","carry","wb","push","pull","squat","hinge","lunge","core","bw"];
         const n = (order==="fixed") ? 3 : (Math.random()<0.6 ? 3 : 2);
         let lastHeavy = prevHeavy;
 
         for (let k=0;k<n;k++){
-          const pool = bucket.filter(c => !(lastHeavy && (c==="sled"||c==="carry")));
-          const cat = choice(pool);
+          const pool = bucket.filter(ct => !(lastHeavy && (ct==="sled"||ct==="carry")));
+          const cat = pick(pool);
           let item;
           if (cat==="sled"){
-            item = choice([ stations.sledPush(), stations.sledPull() ]);
+            item = pick([ stations.sledPush(intensity().sled), stations.sledPull(intensity().sled) ]);
           } else if (cat==="carry"){
-            item = choice([ stations.farmer(), stations.lunges() ]);
+            item = pick([ stations.farmer(intensity().carry), stations.lunges(intensity().sled) ]);
           } else if (cat==="wb"){
-            item = stations.wallballs();
+            item = stations.wallballs(intensity().wb);
           } else if (cat==="bw"){
-            item = choice([ stations.burpees(), `Push-ups — ${choice([5,6,8,10])}`, `Jump Squats — ${choice([5,6,8,10])}` ]);
+            item = pick([ stations.burpees(), `Push-ups — ${pick([5,6,8,10])}`, `Jump Squats — ${pick([5,6,8,10])}` ]);
           } else if (cat==="push"){
-            item = `${choice(lifts.press)} — ${choice([5,6,8,10])}`;
+            item = `${pick(lifts.press)} — ${pick([5,6,8,10])}`; mapLiftNeeds(item);
           } else if (cat==="pull"){
-            item = `${choice(lifts.pull)} — ${choice([5,6,8,10])}`;
+            item = `${pick(lifts.pull)} — ${pick([5,6,8,10])}`; mapLiftNeeds(item);
           } else if (cat==="squat"){
-            item = `${choice(lifts.squat)} — ${choice([5,6,8,10])}`;
+            item = `${pick(lifts.squat)} — ${pick([5,6,8,10])}`; mapLiftNeeds(item);
           } else if (cat==="hinge"){
-            item = `${choice(lifts.hinge)} — ${choice([5,6,8,10])}`;
+            item = `${pick(lifts.hinge)} — ${pick([5,6,8,10])}`; mapLiftNeeds(item);
+          } else if (cat==="lunge"){
+            item = `${pick(lifts.lunge)} — ${pick([6,8,10])}/zijde`; mapLiftNeeds(item);
+          } else if (cat==="core"){
+            const core = Math.random()<0.5 ? pick(lifts.rotation) : pick(lifts.antirot);
+            item = `${core} — ${pick([8,10,12,15])}/zijde`; mapLiftNeeds(core);
           }
           parts.push(item);
+          addItem({name:item, target:"", type:"interval", loadable: /(Sled|Wall Balls|Farmer|Sandbag)/.test(item), rpe: defaultRPE()});
           lastHeavy = (cat==="sled"||cat==="carry");
         }
 
@@ -333,21 +502,142 @@ ${moveB} — ${bReps}`;
     }
 
     function buildAerobic(dur){
-      const equip = readEquip();
-      const modal = choice(["Run","RowErg","SkiErg","BikeErg"].filter(m =>
-        (m==="Run"    && equip.has("run")) ||
-        (m==="RowErg" && equip.has("row")) ||
-        (m==="SkiErg" && equip.has("ski")) ||
-        (m==="BikeErg"&& equip.has("bike")
-      ))) || "BikeErg";
+      const equip = new Set(["Run","RowErg","SkiErg","BikeErg"]);
+      const modal = pick([...equip]) || "BikeErg";
       const modeText = (modal==="Run") ? "Run @ 2% incline" : modal;
+      if (modal==="Run") addRun(); else addErg(modeText);
+      addItem({name:modeText, target:`${dur.aerobic} min`, type:"aerobic", loadable:false, rpe:7});
       return `Aerobic — ${dur.aerobic} min
 ${modeText}`;
     }
 
-    // ===== Core generator =====
-    const KEY = "hyrox_history_v9";
-    function generate(arch){
+    // ===== Cards rendering (with persistent loads) =====
+    function renderCards(){
+      const box = $("#cards"); box.innerHTML = "";
+      const rpeOpts = [6,7,8,9,10];
+      CURRENT_SESSION.items.forEach((it, idx)=>{
+        const card = document.createElement("div");
+        card.className = "xcard p-3 md:p-4 rounded-xl border border-slate-200 dark:border-slate-700";
+        const last = it.loadable ? getLastLoad(it.name) : "";
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="font-medium">${it.name}</div>
+              <div class="text-xs muted">${it.type}${it.target?` • ${it.target}`:""}</div>
+            </div>
+            <span class="tag">${idx+1}</span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+            <div>
+              <label class="text-xs muted">Gewicht ${last?`(laatst: ${last})`:""}</label>
+              <input data-k="load" placeholder="${it.loadable?'kg':''}" ${it.loadable?'':'disabled'} value="${last}" />
+            </div>
+            <div>
+              <label class="text-xs muted">RPE</label>
+              <select data-k="rpe">
+                ${rpeOpts.map(v=>`<option ${(+it.rpe===v)?'selected':''} value="${v}">${v}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label class="text-xs muted">Herhalingen / Afstand</label>
+              <input data-k="done" placeholder="bv. 3×5, 500 m, 12/side" />
+            </div>
+            <div class="md:col-span-1 col-span-2">
+              <label class="text-xs muted">Notities</label>
+              <input data-k="notes" placeholder="cue/tempo/techniek" />
+            </div>
+          </div>
+        `;
+        // bind events
+        card.querySelectorAll("input,select,textarea").forEach(el=>{
+          el.addEventListener("input", ()=>{
+            CURRENT_SESSION.items[idx].log = CURRENT_SESSION.items[idx].log || {};
+            const k = el.getAttribute("data-k");
+            CURRENT_SESSION.items[idx].log[k] = el.value;
+            if (k==="load" && it.loadable){
+              setLastLoad(it.name, el.value);
+            }
+          });
+        });
+        box.appendChild(card);
+      });
+    }
+
+    // ===== Needs UI =====
+    function renderNeedsUI(){ renderNeeds(); }
+
+    // ===== History / Persistence =====
+    const KEY = "hyrox_history_full_v1";
+    function loadHistory(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch{ return []; } }
+    function saveHistory(a){ localStorage.setItem(KEY, JSON.stringify(a.slice(-160))); renderHistory(); }
+    function renderHistory(){
+      const hist = loadHistory().slice().reverse();
+      $("#histCount").textContent = `${hist.length} sessies`;
+      const box = $("#history"); box.innerHTML="";
+      hist.forEach(t => {
+        const d=document.createElement("div");
+        d.className="p-3 rounded-lg border border-slate-200 dark:border-slate-700";
+        d.textContent=t.planText;
+        box.appendChild(d);
+      });
+    }
+    function currentText(){ return $("#output").textContent.trim(); }
+
+    function savePlanOnly(){
+      const h=loadHistory();
+      h.push({ when: CURRENT_SESSION.when, arch: CURRENT_SESSION.arch, planText: CURRENT_SESSION.planText, items: [], completed: CURRENT_SESSION.completed });
+      saveHistory(h);
+      toast("Plan opgeslagen");
+    }
+    function saveLogs(){
+      const h=loadHistory();
+      h.push(JSON.parse(JSON.stringify(CURRENT_SESSION)));
+      saveHistory(h);
+      toast("Logs opgeslagen");
+    }
+    function exportCSV(){
+      const rows = [["datum","archetype","oefening","doel","gewicht","RPE","gerealiseerd","notities","completed"]];
+      CURRENT_SESSION.items.forEach(it=>{
+        const log = it.log || {};
+        rows.push([
+          CURRENT_SESSION.when,
+          CURRENT_SESSION.arch,
+          it.name.replaceAll(","," "),
+          it.target||"",
+          (log.load||""),
+          (log.rpe||it.rpe||""),
+          (log.done||""),
+          (log.notes||""),
+          CURRENT_SESSION.completed ? "yes" : "no"
+        ]);
+      });
+      const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `hyrox_logs_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ===== Core generator (with pinning) =====
+    function generate(arch, force=false){
+      if (pinEnabled() && !force){
+        const pinned = getPinned();
+        if (pinned && !pinned.completed){
+          // Re-render the pinned session + cards + needs, don't create a new one
+          CURRENT_SESSION = pinned;
+          $("#output").textContent = CURRENT_SESSION.planText;
+          renderNeeds();
+          renderCards();
+          toast("Pinned: werk eerst deze training af.");
+          return CURRENT_SESSION.planText;
+        }
+      }
+
+      resetNeeds();
+      CURRENT_SESSION = { arch, planText:"", when: nowStr(), intensity: $("#intensity").value, items:[], completed:false };
+
       const dur = durations();
       const out = [];
 
@@ -360,38 +650,65 @@ ${modeText}`;
       if (arch==="Interval"){ out.push(buildInterval()); }
       if (arch==="Aerobic"){ out.push(buildAerobic(dur)); }
 
-      return out.join("\n");
+      const text = out.join("\n");
+      CURRENT_SESSION.planText = text;
+      $("#output").textContent = text;
+      renderNeedsUI();
+      renderCards();
+      window.scrollTo({top:0,behavior:"smooth"});
+
+      // Set as pinned if pin is on
+      if (pinEnabled()){ setPinned(CURRENT_SESSION); }
+
+      return text;
     }
 
-    // ===== History/UI =====
-    function loadHistory(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch{ return []; } }
-    function saveHistory(a){ localStorage.setItem(KEY, JSON.stringify(a.slice(-80))); renderHistory(); }
-    function renderHistory(){
-      const hist = loadHistory().slice().reverse();
-      $("#histCount").textContent = `${hist.length} sessies`;
-      const box = $("#history"); box.innerHTML="";
-      hist.forEach(t => { const d=document.createElement("div"); d.className="p-3 rounded-lg border border-slate-200 dark:border-slate-700"; d.textContent=t; box.appendChild(d); });
-    }
-    function setOutput(txt){ $("#output").textContent = txt; window.scrollTo({top:0,behavior:"smooth"}); }
-    function currentText(){ return $("#output").textContent.trim(); }
-
-    // Bindings
-    $("#nextBtn").addEventListener("click", ()=> setOutput(generate(nextArch())));
-    $$("[data-arch]").forEach(b=>b.addEventListener("click", ()=> setOutput(generate(b.dataset.arch))));
-    $("#saveBtn").addEventListener("click", ()=>{ const txt=currentText(); if(!txt) return; const h=loadHistory(); h.push(txt); saveHistory(h); });
+    // ===== Bindings =====
+    $("#nextBtn").addEventListener("click", ()=> generate(nextArch()));
+    $$("[data-arch]").forEach(b=>b.addEventListener("click", ()=> generate(b.dataset.arch)));
+    $("#savePlanBtn").addEventListener("click", savePlanOnly);
+    $("#saveLogsBtn").addEventListener("click", saveLogs);
+    $("#exportCsvBtn").addEventListener("click", exportCSV);
     $("#clearHistoryBtn").addEventListener("click", ()=>{ if (!confirm("Geschiedenis wissen?")) return; saveHistory([]); });
     $("#copyBtn").addEventListener("click", async ()=>{
       const txt=currentText(); if(!txt) return;
-      try{ await navigator.clipboard.writeText(txt); $("#copyBtn").textContent="Gekopieerd!"; setTimeout(()=>$("#copyBtn").textContent="Kopieer",1200);}catch{alert("Kopiëren niet gelukt.");}
+      try{ await navigator.clipboard.writeText(txt); $("#copyBtn").textContent="Gekopieerd!"; setTimeout(()=>$("#copyBtn").textContent="Kopieer plan",1200);}catch{alert("Kopiëren niet gelukt.");}
     });
     $("#toggleTheme").addEventListener("click", ()=> document.documentElement.classList.toggle("dark"));
+    $("#pinEnabled").addEventListener("change", (e)=>{
+      setPinEnabled(e.target.checked);
+      if (pinEnabled()){
+        // If enabling while a plan exists, pin the current one
+        if (CURRENT_SESSION.planText){ setPinned(CURRENT_SESSION); }
+      } else {
+        clearPinned();
+      }
+    });
+    $("#markDoneBtn").addEventListener("click", ()=>{
+      CURRENT_SESSION.completed = true;
+      // Also mark pinned as completed
+      if (pinEnabled()){ setPinned(CURRENT_SESSION); }
+      toast("Training gemarkeerd als voltooid");
+    });
 
-    // Init
+    // Init — show current and advance index for first click
     (function init(){
-      renderHistory();
-      renderRotInfo();
-      const arch = WEEK_ROTATION[rotationIndex()];
-      setOutput(generate(arch));
+      renderHistory(); renderRotInfo(); renderPinNote();
+      // If pin is enabled and an unfinished pinned session exists, show it
+      if (pinEnabled()){
+        const pinned = getPinned();
+        if (pinned && !pinned.completed){
+          CURRENT_SESSION = pinned;
+          $("#output").textContent = CURRENT_SESSION.planText;
+          renderNeeds();
+          renderCards();
+          return;
+        }
+      }
+      const i = rotationIndex();
+      const arch = WEEK_ROTATION[i];
+      generate(arch, true); // force on first load
+      setRotationIndex(i+1);
     })();
   </script>
 </body>

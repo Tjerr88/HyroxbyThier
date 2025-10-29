@@ -2,7 +2,7 @@
 <html lang="nl" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <title>Hyrox Pro Generator — PFT • FMS • Pin</title>
+  <title>Hyrox Pro Generator — Rise‑mode (geen pin, geen PFT)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={darkMode:'class'}</script>
@@ -32,10 +32,10 @@
     <!-- Header -->
     <header class="flex items-start justify-between gap-3">
       <div class="flex-1">
-        <h1 class="text-xl md:text-3xl font-semibold">Hyrox Pro Generator</h1>
+        <h1 class="text-xl md:text-3xl font-semibold">Hyrox Pro Generator — Rise‑mode</h1>
         <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-          Rotatie: PFT → Complete → Engine → Strength → Interval → Engine → Aerobic •
-          Deload-ritme: 3 wkn normaal → mini-deload → 3 wkn normaal → PFT + deload
+          Rotatie: Complete → Engine → Strength → Interval → Engine → Aerobic •
+          Deload-ritme: 3 wkn normaal → mini-deload → 3 wkn normaal → deload
         </p>
       </div>
       <div class="flex items-center gap-2">
@@ -52,7 +52,7 @@
       </div>
       <div class="mt-3 flex items-center justify-between text-sm">
         <span id="rotInfo" class="tag">Stap —</span>
-        <span class="text-emerald-600 dark:text-emerald-300 text-xs md:text-sm">Pin: actief (tot ✅ Voltooid)</span>
+        <span class="text-slate-500 text-xs md:text-sm">Rise‑mode: sessie blijft staan tot je op Volgende drukt</span>
       </div>
     </section>
 
@@ -168,17 +168,16 @@
       <div class="grid grid-cols-3 gap-2 md:gap-3 max-w-5xl mx-auto">
         <button id="savePlanBtn" class="btn">Bewaar plan</button>
         <button id="saveLogsBtn" class="btn">Bewaar logs</button>
-        <button id="markDoneBtn" class="btn">✅ Voltooid</button>
+        <button id="exportCsvBtn" class="btn btn-ghost">Export CSV</button>
       </div>
       <div class="grid grid-cols-2 gap-2 md:gap-3 max-w-5xl mx-auto mt-2">
-        <button id="exportCsvBtn" class="btn btn-ghost">Export CSV</button>
         <button id="clearHistoryBtn" class="btn btn-ghost">Wis geschiedenis</button>
       </div>
     </div>
   </div>
 <script>
 /* ===========================
-   HYROX PRO GENERATOR — SCRIPT
+   HYROX PRO GENERATOR — RISE-MODE SCRIPT
    =========================== */
 
 ///// Mini helpers
@@ -191,20 +190,18 @@ const pick = arr => choice(arr);
 const toast = (msg)=>{ const t=document.createElement('div'); t.textContent = msg; t.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-black/80 text-white text-sm z-50'; document.body.appendChild(t); setTimeout(()=>t.remove(),1600); };
 
 ///// Keys
-const KEY_HISTORY = "hyrox_history_full_v4";
-const KEY_ROT     = "hyrox_rot_v4";
-const KEY_STRENGTH_ORDER = "hyrox_strength_order_ab_v4";
-const KEY_LOADS   = "hyrox_last_loads_v4";
-const KEY_PINNED  = "hyrox_pinned_session_v4";
-const KEY_START   = "hyrox_start_date_v4";
-const KEY_FIRST_PFT = "hyrox_first_pft_done_v4";
-const KEY_LAST_PFT_WEEK = "hyrox_last_pft_week_v4";
-const KEY_WEEK_RUNS = "hyrox_week_runs_v4";
-const KEY_WEEK_ID   = "hyrox_week_id_v4";
-const KEY_WEEK_CARDIO_COUNTS = "hyrox_week_cardio_counts_v4"; // {run,ski,row,assault}
+const KEY_HISTORY = "hyrox_history_full_v5_rise";
+const KEY_ROT     = "hyrox_rot_v5_rise";
+const KEY_STRENGTH_ORDER = "hyrox_strength_order_ab_v5_rise";
+const KEY_LOADS   = "hyrox_last_loads_v5_rise";
+const KEY_START   = "hyrox_start_date_v5_rise";
+const KEY_WEEK_RUNS = "hyrox_week_runs_v5_rise";
+const KEY_WEEK_ID   = "hyrox_week_id_v5_rise";
+const KEY_WEEK_CARDIO_COUNTS = "hyrox_week_cardio_counts_v5_rise"; // {run,ski,row,assault}
+const KEY_CURRENT = "hyrox_current_session_v5_rise"; // <-- huidige sessie persistent
 
 ///// Global session
-let CURRENT_SESSION = { arch:"", planText:"", when:"", intensity:"", items:[], completed:false, warmup:"", needs: "" };
+let CURRENT_SESSION = { arch:"", planText:"", when:"", intensity:"", items:[], warmup:"", needs: "" };
 
 ///// State & Week logic
 function getOrSetStartDate() {
@@ -220,7 +217,6 @@ function weekIndexZeroBased() {
   return Math.floor(ms / (7*24*60*60*1000)); // 0,1,2,...
 }
 function displayWeekNumber() {
-  // we tonen 1-based
   return weekIndexZeroBased() + 1;
 }
 function renderWeekBadge() {
@@ -231,7 +227,6 @@ function ensureWeekBuckets() {
   const wid = String(displayWeekNumber());
   const cur = localStorage.getItem(KEY_WEEK_ID);
   if (cur !== wid) {
-    // new week => reset counts
     localStorage.setItem(KEY_WEEK_ID, wid);
     localStorage.setItem(KEY_WEEK_RUNS, "0");
     localStorage.setItem(KEY_WEEK_CARDIO_COUNTS, JSON.stringify({run:0,ski:0,row:0,assault:0}));
@@ -246,11 +241,6 @@ function getWeekCardioCounts(){
   try { return JSON.parse(localStorage.getItem(KEY_WEEK_CARDIO_COUNTS)||"{}"); } catch { return {}; }
 }
 function setWeekCardioCounts(m){ localStorage.setItem(KEY_WEEK_CARDIO_COUNTS, JSON.stringify(m)); }
-function incCardio(kind){
-  const m = getWeekCardioCounts();
-  m[kind] = (m[kind]||0)+1;
-  setWeekCardioCounts(m);
-}
 
 ///// Rotation (archetypes)
 const WEEK_ROTATION = [ "Complete", "Engine", "Strength", "Interval", "Engine", "Aerobic" ];
@@ -259,26 +249,14 @@ function setRotationIndex(i){ localStorage.setItem(KEY_ROT, i % WEEK_ROTATION.le
 function nextArch(){ const i = rotationIndex(); const arch = WEEK_ROTATION[i]; setRotationIndex(i+1); return arch; }
 function renderRotInfo(){ const i = rotationIndex(); $("#rotInfo").textContent = `Stap ${i+1}/6 — ${WEEK_ROTATION[i]}`; renderWeekBadge(); }
 
-///// PFT cadence: 3/1/3/1 (week 4 = mini-deload, week 8 = PFT + deload)
-function firstPFTDone(){ return !!JSON.parse(localStorage.getItem(KEY_FIRST_PFT) || "false"); }
-function setFirstPFTDone(){ localStorage.setItem(KEY_FIRST_PFT, "true"); }
-function getLastPFTWeek(){ return +(localStorage.getItem(KEY_LAST_PFT_WEEK) || "-1"); }
-function setLastPFTWeek(w){ localStorage.setItem(KEY_LAST_PFT_WEEK, String(w)); }
-
+///// Deload cadence (zonder PFT)
 function cycleInfo() {
   const wk1 = displayWeekNumber(); // 1-based
   const mod = ((wk1 - 1) % 8) + 1; // 1..8
-  // 1-3 normal, 4 mini-deload, 5-7 normal, 8 PFT+deload
-  if (mod === 4) return { phase:"mini-deload", pft:false };
-  if (mod === 8) return { phase:"pft-deload", pft:true };
-  return { phase:"normal", pft:false };
+  if (mod === 4) return { phase:"mini-deload" };
+  if (mod === 8) return { phase:"deload" };
+  return { phase:"normal" };
 }
-
-
-///// Pinning (altijd aan: pinned sessie blijft staan tot ✅ Voltooid)
-function getPinned(){ try { return JSON.parse(localStorage.getItem(KEY_PINNED) || "null"); } catch { return null; } }
-function setPinned(sess){ localStorage.setItem(KEY_PINNED, JSON.stringify(sess)); }
-function clearPinned(){ localStorage.removeItem(KEY_PINNED); }
 
 ///// Durations & Intensities
 function durations(){
@@ -520,6 +498,7 @@ function renderCards(){
         const k = el.getAttribute("data-k");
         CURRENT_SESSION.items[idx].log[k] = el.value;
         if (k==="load" && it.loadable){ setLastLoad(it.name, el.value); }
+        persistCurrent();
       });
     });
     box.appendChild(card);
@@ -543,7 +522,7 @@ function renderHistory(){
 
 function savePlanOnly(){
   const h=loadHistory();
-  h.push({ when: CURRENT_SESSION.when, arch: CURRENT_SESSION.arch, planText: CURRENT_SESSION.planText, items: [], completed: CURRENT_SESSION.completed, warmup: CURRENT_SESSION.warmup, needs: CURRENT_SESSION.needs });
+  h.push({ when: CURRENT_SESSION.when, arch: CURRENT_SESSION.arch, planText: CURRENT_SESSION.planText, items: [], warmup: CURRENT_SESSION.warmup, needs: CURRENT_SESSION.needs });
   saveHistory(h);
   toast("Plan opgeslagen");
 }
@@ -554,7 +533,7 @@ function saveLogs(){
   toast("Logs opgeslagen");
 }
 function exportCSV(){
-  const rows = [["datum","archetype","oefening","doel","gewicht","RPE","gerealiseerd","notities","completed"]];
+  const rows = [["datum","archetype","oefening","doel","gewicht","RPE","gerealiseerd","notities"]];
   CURRENT_SESSION.items.forEach(it=>{
     const log = it.log || {};
     rows.push([
@@ -565,8 +544,7 @@ function exportCSV(){
       (log.load||""),
       (log.rpe||it.rpe||""),
       (log.done||""),
-      (log.notes||""),
-      CURRENT_SESSION.completed ? "yes" : "no"
+      (log.notes||"")
     ]);
   });
   const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
@@ -579,17 +557,12 @@ function exportCSV(){
 }
 
 ///// Cardio selector with distribution & ≥3 runs/week
-// Weekly distribution targets by probability: run .40, ski .25, row .25, assault .10
 function pickCardioModePreferRunIfNeeded() {
-  // hard guard: if run count < 3 and it's late in the week, force run more often.
-  const runCount = getWeekRunCount();
-  // Soft heuristic: if <3, give run strong bias:
+  const runCount = parseInt(localStorage.getItem(KEY_WEEK_RUNS)||"0",10);
   const pool = (runCount < 3)
-    ? ["Run","Run","Run","SkiErg","RowErg","Assault Bike"] // 50% run-ish
-    : ["Run","Run","SkiErg","RowErg","Assault Bike","Run","SkiErg","RowErg","Run"]; // ~40/25/25/10
-
+    ? ["Run","Run","Run","SkiErg","RowErg","Assault Bike"]
+    : ["Run","Run","SkiErg","RowErg","Assault Bike","Run","SkiErg","RowErg","Run"];
   const mode = pick(pool);
-  // track distribution
   if (mode==="Run") incWeekRun();
   const c = getWeekCardioCounts();
   if (mode==="Run") c.run=(c.run||0)+1;
@@ -597,7 +570,6 @@ function pickCardioModePreferRunIfNeeded() {
   else if (mode==="RowErg") c.row=(c.row||0)+1;
   else if (mode==="Assault Bike") c.assault=(c.assault||0)+1;
   setWeekCardioCounts(c);
-
   return mode;
 }
 function cardioTextDistance(meters){
@@ -619,28 +591,6 @@ function maybeAddCompromisedRun(afterMeters) {
 }
 
 ///// Builders
-function buildPFT(deload=false){
-  const wbKg = $("#wWB").value;
-  const steps = [
-    `Run @ 2% incline 1000 m`,
-    `50 Burpee Broad Jumps`,
-    `100 Stationary Lunges`,
-    `RowErg 1000 m`,
-    `30 Hand-Release Push-Ups`,
-    `Wall Balls ${wbKg} kg x 100`
-  ];
-  steps.forEach(s=>{ if (s.includes("Run")) addRun(); if (s.includes("RowErg")) addErg("RowErg"); if (s.includes("Wall Balls")) addWallball(); });
-  steps.forEach(name=> addItem({name, target:"", type:"PFT", loadable:false, rpe: deload?7:8 }));
-  const title = deload ? "PFT (DELOAD)" : "PFT (Officieel)";
-  return `${title} — ${nowStr()}
-1) Run @ 2% incline — 1000 m
-2) Burpee Broad Jumps — 50
-3) Stationary Lunges — 100
-4) RowErg — 1000 m
-5) Hand-Release Push-Ups — 30
-6) Wall Balls — 100 (${wbKg} kg)`;
-}
-
 function buildStrength(){
   const it = intensity();
   const r = () => pick([...Array(it.strMax - it.strMin + 1)].map((_,i)=>i+it.strMin));
@@ -695,7 +645,6 @@ function buildComplete(dur){
   const it = intensity();
   const r8_12 = () => pick([8,9,10,11,12]);
 
-  // 1/3 Hypertrofie — 15–20 min circuit
   const push   = pick(lifts.press);  mapLiftNeeds(push);
   const pull   = pick(lifts.pull);   mapLiftNeeds(pull);
   const squat  = pick(lifts.squat);  mapLiftNeeds(squat);
@@ -705,9 +654,7 @@ function buildComplete(dur){
   [push,pull,squat,hinge].forEach(n => addItem({name:n, target:`${r8_12()} reps`, type:"hypertrofie", loadable:true, rpe: defaultRPE()}));
   addItem({name:coreEx, target:`${pick([10,12,15])}/zijde`, type:"core", loadable:false, rpe: defaultRPE()});
 
-  // 2/3 Conditioning — Hyrox specific 20–30 min
   const cShort = intensity().cardioShort;
-  // cardio per distributie + needs + compromised
   const cardio = cardioTextDistance(pick(cShort));
   const station = pick([
     stations.wallballs(intensity().wb),
@@ -738,7 +685,6 @@ function buildComplete(dur){
 
 function buildEngine(dur){
   const it = intensity();
-  // Engine verplicht run als Cardio 1 om runs/week te boosten:
   const c1 = `Run @ 2% incline ${pick(it.cardioLong)} m`; addRun(); mapStationNeeds(c1);
   const moveA = pick([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull, ...lifts.lunge]); mapLiftNeeds(moveA);
   const moveB = pick([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull, ...lifts.lunge]); mapLiftNeeds(moveB);
@@ -771,7 +717,6 @@ function buildInterval(){
 
   for (let i=1;i<=sets;i++){
     const parts = [];
-    // korte cardio bout met verdeling
     const c = cardioTextDistance(pick([100,150,200,250]));
     parts.push(c); mapStationNeeds(c);
     addItem({name:`Set ${i} cardio`, target:c, type:"interval", loadable:false, rpe: defaultRPE()});
@@ -808,7 +753,6 @@ function buildInterval(){
 
 function buildAerobic(dur){
   const minutes = dur.aerobic;
-  // *Geen* BikeErg; Assault blijft bestaan in mix, maar hier pakken we enkel Run/Ski/Row/Assault met verdeling
   const mode = pickCardioModePreferRunIfNeeded();
   const modeText = (mode==="Run") ? "Run @ 2% incline" : mode;
   if (mode==="Run") addRun(); else addErg(modeText);
@@ -817,29 +761,17 @@ function buildAerobic(dur){
 ${modeText}`;
 }
 
-///// Core generator (pinning + cadence + FMS + needs)
-function generate(arch, force=false){
-  // PIN: als er een onafgemaakte pinned sessie staat, render die en stop
-  const pinned = getPinned();
-  if (pinned && !pinned.completed && !force) {
-    CURRENT_SESSION = pinned;
-    $("#warmup").textContent = CURRENT_SESSION.warmup || "";
-    $("#output").textContent = CURRENT_SESSION.planText;
-    $("#needs").textContent  = CURRENT_SESSION.needs || "";
-    renderCards();
-    toast("Pinned: maak deze sessie eerst af (✅ Voltooid).");
-    return CURRENT_SESSION.planText;
-  }
-
+///// Core generator (Rise-mode: geen pin, geen voltooid, sessie blijft staan tot Volgende)
+function generate(arch){
   ensureWeekBuckets();
 
-  // PFT-gate
-  // const gate = gatePFT();
-  // if (!force && gate.do) arch = "PFT";
+  // Deload via cadence
+  const cyc = cycleInfo();
+  if (cyc.phase==="mini-deload" || cyc.phase==="deload") $("#intensity").value = "deload";
 
   // reset sessie
   resetNeeds();
-  CURRENT_SESSION = { arch, planText:"", when: nowStr(), intensity: $("#intensity").value, items:[], completed:false, warmup:"", needs:"" };
+  CURRENT_SESSION = { arch, planText:"", when: nowStr(), intensity: $("#intensity").value, items:[], warmup:"", needs:"" };
 
   // FMS warm-up
   const warm = buildWarmupFromFMS();
@@ -848,12 +780,7 @@ function generate(arch, force=false){
 
   const dur = durations();
   const out = [];
-  // Deload labeling via intensiteit-selectie óf via cadence (mini-deload / pft-deload)
-  const cyc = cycleInfo();
-  if (arch!=="PFT" && cyc.phase==="mini-deload") $("#intensity").value = "deload";
-  if (arch!=="PFT" && cyc.phase==="pft-deload") $("#intensity").value = "deload";
 
-// PFT verwijderd — niets genereren hier
   if (arch==="Complete"){ out.push(buildComplete(dur)); }
   if (arch==="Engine"){ out.push(buildEngine(dur)); }
   if (arch==="Strength"){ out.push(buildStrength()); }
@@ -870,18 +797,28 @@ function generate(arch, force=false){
   renderCards();
   window.scrollTo({top:0,behavior:"smooth"});
 
-  // PIN altijd: set pinned
-  setPinned(CURRENT_SESSION);
-
+  persistCurrent();
   return text;
+}
+
+function persistCurrent(){
+  try{ localStorage.setItem(KEY_CURRENT, JSON.stringify(CURRENT_SESSION)); }catch{}
+}
+function loadCurrent(){
+  try{ return JSON.parse(localStorage.getItem(KEY_CURRENT)||"null"); }catch{ return null; }
 }
 
 ///// UI bindings
 $("#nextBtn").addEventListener("click", ()=>{
+  // 1) Voeg huidige toe aan geschiedenis (als er een is)
+  if (CURRENT_SESSION && CURRENT_SESSION.planText){
+    const h = loadHistory(); h.push(JSON.parse(JSON.stringify(CURRENT_SESSION))); saveHistory(h);
+  }
+  // 2) Genereer nieuwe volgens override/rotatie
   const over = $("#archOverride").value;
-  if (over){ generate(over); return; }
-// PFT verwijderd — sla gatePFT over
-  generate(nextArch());
+  const arch = over || nextArch();
+  generate(arch);
+  toast("Nieuwe sessie gegenereerd");
 });
 
 $("#copyBtn").addEventListener("click", async ()=>{
@@ -899,40 +836,23 @@ $("#clearHistoryBtn").addEventListener("click", ()=>{ if (!confirm("Geschiedenis
 $("#saveFMS").addEventListener("click", collectFMS);
 $("#clearFMS").addEventListener("click", ()=>{ localStorage.removeItem(FMS_KEY); renderFMSGrid(); $("#fmsHint").textContent="FMS gereset."; setTimeout(()=>$("#fmsHint").textContent="",1200); });
 
-$("#markDoneBtn").addEventListener("click", ()=>{
-  CURRENT_SESSION.completed = true;
-  setPinned(CURRENT_SESSION); // update pinned object
-  toast("Training gemarkeerd als voltooid");
-  // pinned blijft bestaan, maar completed=true laat 'Volgende' weer nieuwe maken
-});
-
 ///// Init
 (function init(){
   renderFMSGrid(); renderHistory(); renderRotInfo(); ensureWeekBuckets();
-
-  // Als er een onafgemaakte pinned sessie staat: toon die
-  const pinned = getPinned();
-  if (pinned && !pinned.completed){
-    CURRENT_SESSION = pinned;
-    $("#warmup").textContent = CURRENT_SESSION.warmup || "";
-    $("#needs").textContent  = CURRENT_SESSION.needs || "";
-    $("#output").textContent = CURRENT_SESSION.planText;
+  // Probeer huidige sessie te herstellen
+  const cur = loadCurrent();
+  if (cur && cur.planText){
+    CURRENT_SESSION = cur;
+    $("#warmup").textContent = cur.warmup||"";
+    $("#needs").textContent  = cur.needs||"";
+    $("#output").textContent = cur.planText||"";
     renderCards();
     return;
   }
-
-  // Anders: start met baseline PFT als geen history
-  const hist = loadHistory();
-  if (hist.length === 0){ generate("PFT", true); return; }
-
-  // Check PFT cadence bij start
-  const gate = gatePFT();
-  if (gate.do){ generate("PFT", true); return; }
-
-  // Anders: pak huidige rotatie
+  // Anders: start nieuwe sessie
   const i = rotationIndex();
   const arch = WEEK_ROTATION[i];
-  generate(arch, true);
+  generate(arch);
   setRotationIndex(i+1);
 })();
 </script>

@@ -89,7 +89,7 @@
         <label class="text-sm">Archetype override
           <select id="archOverride" class="input mt-1">
             <option value="">—</option>
-            <option>Complete</option><option>Engine</option><option>Strength</option><option>Interval</option><option>Aerobic</option><option>PFT</option>
+            <option>Complete</option><option>Engine</option><option>Strength</option><option>Interval</option><option>Aerobic</option>
           </select>
         </label>
       </div>
@@ -274,20 +274,6 @@ function cycleInfo() {
   return { phase:"normal", pft:false };
 }
 
-function gatePFT() {
-  const wk0 = weekIndexZeroBased();
-  const wk1 = wk0 + 1;
-  // Start: als nog geen history => baseline PFT
-  const hist = loadHistory();
-  if (hist.length === 0) return { do:true, deload:false, reason:"Baseline PFT" };
-
-  // 3/1/3/1
-  const c = cycleInfo();
-  if (c.pft) {
-    if (getLastPFTWeek() !== wk1) return { do:true, deload:true, reason:"PFT + Deload (week 8 in cyclus)" };
-  }
-  return { do:false };
-}
 
 ///// Pinning (altijd aan: pinned sessie blijft staan tot ✅ Voltooid)
 function getPinned(){ try { return JSON.parse(localStorage.getItem(KEY_PINNED) || "null"); } catch { return null; } }
@@ -848,8 +834,8 @@ function generate(arch, force=false){
   ensureWeekBuckets();
 
   // PFT-gate
-  const gate = gatePFT();
-  if (!force && gate.do) arch = "PFT";
+  // const gate = gatePFT();
+  // if (!force && gate.do) arch = "PFT";
 
   // reset sessie
   resetNeeds();
@@ -867,7 +853,7 @@ function generate(arch, force=false){
   if (arch!=="PFT" && cyc.phase==="mini-deload") $("#intensity").value = "deload";
   if (arch!=="PFT" && cyc.phase==="pft-deload") $("#intensity").value = "deload";
 
-  if (arch==="PFT"){ out.push(buildPFT(gate.do && gate.reason.includes("Deload"))); setFirstPFTDone(); setLastPFTWeek(displayWeekNumber()); }
+// PFT verwijderd — niets genereren hier
   if (arch==="Complete"){ out.push(buildComplete(dur)); }
   if (arch==="Engine"){ out.push(buildEngine(dur)); }
   if (arch==="Strength"){ out.push(buildStrength()); }
@@ -894,8 +880,7 @@ function generate(arch, force=false){
 $("#nextBtn").addEventListener("click", ()=>{
   const over = $("#archOverride").value;
   if (over){ generate(over); return; }
-  const gate = gatePFT();
-  if (gate.do){ generate("PFT"); return; }
+// PFT verwijderd — sla gatePFT over
   generate(nextArch());
 });
 

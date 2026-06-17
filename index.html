@@ -1,860 +1,1002 @@
 <!DOCTYPE html>
-<html lang="nl" class="dark">
+<html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <title>Hyrox Pro Generator — Rise‑mode (geen pin, geen PFT)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config={darkMode:'class'}</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Hyrox by Thier - Trainingsgenerator</title>
   <style>
-    :root { color-scheme: light dark; }
-    body { -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
-    .card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:1rem; }
-    html.dark .card { background:#0f172a; border-color:rgba(255,255,255,.12); }
-    .btn { border-radius:1rem; padding:.85rem 1rem; border:1px solid rgba(0,0,0,.1); }
-    html.dark .btn { border-color: rgba(255,255,255,.14); }
-    .btn-primary { background:#0ea5e9; color:white; border-color:transparent; }
-    .btn-ghost { background:transparent; }
-    .tag { font-size:.75rem; padding:.3rem .6rem; border-radius:.6rem; border:1px solid rgba(0,0,0,.12); white-space:nowrap; }
-    html.dark .tag { border-color: rgba(255,255,255,.16); }
-    summary { cursor:pointer; list-style:none; } summary::-webkit-details-marker { display:none; }
-    select, input, textarea { background:transparent; color:inherit; }
-    .input, .xcard input, .xcard select { border:1px solid rgba(0,0,0,.12); border-radius:.6rem; padding:.55rem .7rem; width:100%; }
-    html.dark .input, html.dark .xcard input, html.dark .xcard select { border-color:rgba(255,255,255,.16); }
-    .muted { color:#64748b; }
-    .sticky-actions { position:sticky; bottom:0; background:linear-gradient(to top, rgba(15,23,42,.9), rgba(15,23,42,.6), transparent); padding:.5rem .75rem; border-radius:.75rem; }
-    @media (min-width:768px){ .sticky-actions{ background:transparent; padding:0; } }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f6;
+      --panel: rgba(255, 255, 255, .92);
+      --panel-2: rgba(246, 248, 251, .94);
+      --text: #111827;
+      --muted: #637083;
+      --line: rgba(28, 41, 60, .13);
+      --accent: #b9893b;
+      --accent-2: #0f766e;
+      --danger: #be123c;
+      --accent-soft: rgba(185, 137, 59, .14);
+      --shadow: 0 24px 70px rgba(28, 41, 60, .14);
+      --radius: 8px;
+    }
+
+    html.dark {
+      --bg: #080b10;
+      --panel: rgba(18, 23, 32, .90);
+      --panel-2: rgba(25, 31, 43, .92);
+      --text: #f7f2e8;
+      --muted: #a7afbd;
+      --line: rgba(255, 255, 255, .11);
+      --accent: #d4a950;
+      --accent-2: #2dd4bf;
+      --danger: #fb7185;
+      --accent-soft: rgba(212, 169, 80, .16);
+      --shadow: 0 30px 80px rgba(0, 0, 0, .42);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% -8%, rgba(212,169,80,.20), transparent 360px),
+        radial-gradient(circle at 88% 12%, rgba(45,212,191,.13), transparent 320px),
+        linear-gradient(180deg, rgba(8,11,16,.08), transparent 420px),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .wrap { width: min(1180px, calc(100% - 28px)); margin: 0 auto; padding: 26px 0 34px; }
+    .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    h1 { margin: 0; font-size: clamp(1.55rem, 3.5vw, 2.6rem); line-height: 1.05; letter-spacing: 0; }
+    h2 { margin: 0; font-size: 1.02rem; }
+    p { margin: 0; }
+    .sub { color: var(--muted); margin-top: 7px; max-width: 760px; }
+    .grid { display: grid; gap: 12px; }
+    .main-grid { grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr); align-items: start; }
+    .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .pad { padding: 18px; }
+    .soft { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); }
+    .muted { color: var(--muted); }
+    .tiny { font-size: .78rem; }
+    .small { font-size: .9rem; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .stack { display: grid; gap: 12px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel-2);
+      color: var(--muted);
+      font-size: .78rem;
+      white-space: nowrap;
+    }
+    .tag.good { color: var(--accent); background: var(--accent-soft); border-color: rgba(185,137,59,.28); }
+    .btn {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 9px 12px;
+      font-weight: 650;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--accent); }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), #8f6425);
+      border-color: rgba(255,255,255,.16);
+      color: #ffffff;
+      box-shadow: 0 14px 34px rgba(185, 137, 59, .24);
+    }
+    .btn.danger { color: var(--danger); }
+    .btn.finish {
+      min-height: 54px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+    .iconbtn { width: 42px; padding: 0; display: inline-grid; place-items: center; }
+    label { display: grid; gap: 6px; font-size: .86rem; color: var(--muted); }
+    input, select, textarea {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--text);
+      padding: 8px 10px;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--accent-soft);
+      border-color: var(--accent);
+    }
+    textarea { min-height: 70px; resize: vertical; }
+    input[type="checkbox"] { width: 18px; min-height: 18px; accent-color: var(--accent); }
+    .check { display: flex; align-items: center; gap: 8px; color: var(--text); }
+    details summary { cursor: pointer; list-style: none; }
+    details summary::-webkit-details-marker { display: none; }
+    .summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .workout {
+      white-space: pre-wrap;
+      font-size: clamp(.96rem, 2.2vw, 1.06rem);
+    }
+    .workout strong { color: var(--accent); }
+    .station-list { display: grid; gap: 8px; }
+    .station {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-2);
+    }
+    .num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      font-weight: 800;
+      font-size: .86rem;
+    }
+    .card-list { display: grid; gap: 10px; }
+    .log-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; background: var(--panel); }
+    .history-item { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; background: var(--panel-2); white-space: pre-wrap; }
+    .sticky {
+      position: sticky;
+      bottom: 0;
+      z-index: 5;
+      padding: 10px 0 env(safe-area-inset-bottom);
+      background: linear-gradient(180deg, transparent, var(--bg) 28%);
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      z-index: 20;
+    }
+    .confetti-piece {
+      position: fixed;
+      top: -12px;
+      width: 8px;
+      height: 14px;
+      border-radius: 2px;
+      z-index: 30;
+      pointer-events: none;
+      animation: confettiFall 1100ms ease-in forwards;
+    }
+    @keyframes confettiFall {
+      to { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+    }
+
+    @media (max-width: 900px) {
+      .main-grid, .four, .three { grid-template-columns: 1fr 1fr; }
+      .topbar { align-items: stretch; }
+    }
+    @media (max-width: 660px) {
+      .wrap { width: min(100% - 18px, 1180px); padding-top: 14px; }
+      .main-grid, .two, .three, .four { grid-template-columns: 1fr; }
+      .topbar, .between { display: grid; }
+      .btn { width: 100%; }
+      .iconbtn { width: 42px; }
+      .sticky .two { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
-  <div class="max-w-5xl mx-auto p-4 md:p-6 space-y-4">
-    <!-- Header -->
-    <header class="flex items-start justify-between gap-3">
-      <div class="flex-1">
-        <h1 class="text-xl md:text-3xl font-semibold">Hyrox Pro Generator — Rise‑mode</h1>
-        <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-          Rotatie: Complete → Engine → Strength → Interval → Engine → Aerobic •
-          Deload-ritme: 3 wkn normaal → mini-deload → 3 wkn normaal → deload
-        </p>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div>
+        <h1>Hyrox by Thier</h1>
+        <p class="sub">Een nette, offline trainingsgenerator voor HYROX Pro: correcte stations, bruikbare progressie, equipment filters, FMS warm-up en logboek.</p>
       </div>
-      <div class="flex items-center gap-2">
-        <span id="weekBadge" class="tag">Week —</span>
-        <button id="toggleTheme" class="btn btn-ghost" title="Dark/Light">🌓</button>
+      <div class="row">
+        <span id="weekBadge" class="tag good">Week 1</span>
+        <span id="phaseBadge" class="tag">Normaal</span>
+        <button id="themeBtn" class="btn iconbtn" title="Wissel thema" aria-label="Wissel thema">◐</button>
       </div>
     </header>
 
-    <!-- Quick actions -->
-    <section class="card p-3 md:p-4">
-      <div class="grid grid-cols-2 gap-2">
-        <button id="nextBtn" class="btn btn-primary">🔁 Volgende</button>
-        <button id="copyBtn" class="btn">Kopieer plan</button>
-      </div>
-      <div class="mt-3 flex items-center justify-between text-sm">
-        <span id="rotInfo" class="tag">Stap —</span>
-        <span class="text-slate-500 text-xs md:text-sm">Rise‑mode: sessie blijft staan tot je op Volgende drukt</span>
-      </div>
-    </section>
+    <main class="grid main-grid">
+      <section class="stack">
+        <section class="panel pad stack">
+          <div class="between">
+            <div>
+              <h2 id="title">Nieuwe sessie</h2>
+              <p id="meta" class="small muted">Klaar om te genereren.</p>
+            </div>
+            <span id="rotationBadge" class="tag">Rotatie 1/6</span>
+          </div>
+          <div id="warmup" class="soft pad workout"></div>
+          <div id="workout" class="soft pad workout"></div>
+          <details class="soft pad" id="needsWrap">
+            <summary class="summary"><h2>Benodigdheden</h2><span class="tag">Open</span></summary>
+            <div id="needs" class="small mono" style="margin-top:12px"></div>
+          </details>
+        </section>
 
-    <!-- Instellingen -->
-    <details class="card p-3 md:p-4">
-      <summary class="flex items-center justify-between text-sm md:text-base">
-        <span>Instellingen</span><span class="text-slate-400">▾</span>
-      </summary>
+        <section class="panel pad stack">
+          <div class="between">
+            <h2>Log deze sessie</h2>
+            <span id="itemCount" class="tag">0 items</span>
+          </div>
+          <div id="cards" class="card-list"></div>
+        </section>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-        <label class="text-sm">Duur
-          <select id="duration" class="input mt-1">
-            <option value="short">Kort</option>
-            <option value="standard" selected>Normaal</option>
-            <option value="long">Lang</option>
-          </select>
-        </label>
+        <section id="pftPanel" class="panel pad stack">
+          <div class="between">
+            <h2>PFT meting</h2>
+            <span id="pftBadge" class="tag">Geen tijd</span>
+          </div>
+          <p id="pftSummary" class="small muted"></p>
+          <div id="pftForm" class="grid three">
+            <label>Totaaltijd
+              <input id="pftTotal" placeholder="mm:ss of hh:mm:ss">
+            </label>
+            <label>Run 1000m
+              <input id="pftRun" placeholder="mm:ss">
+            </label>
+            <label>Burpees
+              <input id="pftBurpees" placeholder="mm:ss">
+            </label>
+            <label>Lunges
+              <input id="pftLunges" placeholder="mm:ss">
+            </label>
+            <label>Row 1000m
+              <input id="pftRow" placeholder="mm:ss">
+            </label>
+            <label>Push-ups
+              <input id="pftPushups" placeholder="mm:ss">
+            </label>
+            <label>Wall Balls
+              <input id="pftWallballs" placeholder="mm:ss">
+            </label>
+          </div>
+          <button id="savePftBtn" class="btn primary">Bewaar PFT tijd</button>
+          <div id="pftHistory" class="stack"></div>
+        </section>
 
-        <label class="text-sm">Intensiteit
-          <select id="intensity" class="input mt-1">
-            <option value="deload">Deload</option>
-            <option value="normal" selected>Normaal</option>
-            <option value="hard">Zwaar</option>
-          </select>
-        </label>
+        <section class="panel pad stack">
+          <div class="between">
+            <h2>Geschiedenis</h2>
+            <span id="historyCount" class="tag">0 sessies</span>
+          </div>
+          <div id="history" class="stack"></div>
+        </section>
+      </section>
 
-        <label class="text-sm">Hyrox-finisher na Strength
-          <select id="includeFinisher" class="input mt-1">
-            <option value="yes" selected>Ja</option>
-            <option value="no">Nee</option>
-          </select>
-        </label>
+      <aside class="stack">
+        <section class="panel pad stack">
+          <div class="grid two">
+            <button id="savePlanBtn" class="btn">Bewaar plan</button>
+            <button id="copyBtn" class="btn">Kopieer plan</button>
+          </div>
+          <button id="exportBtn" class="btn">Export CSV</button>
+        </section>
 
-        <label class="text-sm">Archetype override
-          <select id="archOverride" class="input mt-1">
-            <option value="">—</option>
-            <option>Complete</option><option>Engine</option><option>Strength</option><option>Interval</option><option>Aerobic</option>
-          </select>
-        </label>
-      </div>
+        <details class="panel pad" open>
+          <summary class="summary"><h2>Instellingen</h2><span class="tag">Aanpasbaar</span></summary>
+          <div class="stack" style="margin-top:12px">
+            <div class="grid two">
+              <label>Duur
+                <select id="duration">
+                  <option value="short">Kort</option>
+                  <option value="standard" selected>Normaal</option>
+                  <option value="long">Lang</option>
+                </select>
+              </label>
+              <label>Intensiteit
+                <select id="intensity">
+                  <option value="auto" selected>Auto</option>
+                  <option value="deload">Deload</option>
+                  <option value="normal">Normaal</option>
+                  <option value="hard">Zwaar</option>
+                </select>
+              </label>
+            </div>
+            <div class="grid two">
+              <label>Strength finisher
+                <select id="finisher">
+                  <option value="yes" selected>Ja</option>
+                  <option value="no">Nee</option>
+                </select>
+              </label>
+              <label class="check"><input id="useFms" type="checkbox"> Gebruik FMS warm-up</label>
+            </div>
+            <div class="grid two">
+              <label>Sled Push totaal kg<input id="wPush" type="number" min="0" value="202"></label>
+              <label>Sled Pull totaal kg<input id="wPull" type="number" min="0" value="153"></label>
+              <label>Farmers kg/hand<input id="wFarmer" type="number" min="0" value="32"></label>
+              <label>Sandbag kg<input id="wSandbag" type="number" min="0" value="30"></label>
+              <label>Wall Ball kg<input id="wWall" type="number" min="0" value="9"></label>
+              <label>Run incline %<input id="incline" type="number" min="0" step=".5" value="1"></label>
+            </div>
+          </div>
+        </details>
 
-      <hr class="my-3 border-slate-200 dark:border-slate-700">
+        <details class="panel pad" open>
+          <summary class="summary"><h2>Apparatuur</h2><span class="tag">Filter actief</span></summary>
+          <div id="equipment" class="grid two" style="margin-top:12px"></div>
+        </details>
 
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <label class="text-xs">Sled Push (kg) <input id="wPush" type="number" value="202" class="input mt-1"></label>
-        <label class="text-xs">Sled Pull (kg) <input id="wPull" type="number" value="153" class="input mt-1"></label>
-        <label class="text-xs">Farmer (kg/hand) <input id="wFarmer" type="number" value="32" class="input mt-1"></label>
-        <label class="text-xs">Sandbag (kg) <input id="wSandbag" type="number" value="30" class="input mt-1"></label>
-        <label class="text-xs">Wall Ball (kg) <input id="wWB" type="number" value="9" class="input mt-1"></label>
-      </div>
+        <details id="fmsPanel" class="panel pad">
+          <summary class="summary"><h2>FMS warm-up</h2><span class="tag">0-3</span></summary>
+          <p class="small muted" style="margin-top:8px">Scores van 0-2 sturen de warm-up. ASLR krijgt de hoogste prioriteit.</p>
+          <div id="fms" class="grid two" style="margin-top:12px"></div>
+          <div class="grid two" style="margin-top:12px">
+            <button id="saveFmsBtn" class="btn">Bewaar FMS</button>
+            <button id="resetFmsBtn" class="btn">Reset FMS</button>
+          </div>
+        </details>
 
-      <details class="mt-3">
-        <summary class="text-sm flex justify-between">Apparatuur <span class="text-slate-400">▾</span></summary>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 text-sm">
-          <!-- Assault Bike los opnemen; GEEN BikeErg -->
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="run" checked>Run</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="ski" checked>SkiErg</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="row" checked>RowErg</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="assault" checked>Assault Bike</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="sled" checked>Sled</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="farmer" checked>Farmers</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="sandbag" checked>Sandbag</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="wallball" checked>Wall Balls</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="kb" checked>Kettlebell</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="bb" checked>Barbell</label>
-          <label class="flex items-center gap-2"><input type="checkbox" class="eqp" value="rings" checked>Chins/Dips/TRX</label>
-        </div>
-      </details>
-    </details>
+        <section class="panel pad stack">
+          <div class="between">
+            <h2>HYROX Pro stations</h2>
+            <span class="tag">Racevolgorde</span>
+          </div>
+          <div id="stationList" class="station-list"></div>
+        </section>
 
-    <!-- FMS Settings -->
-    <details class="card p-3 md:p-4">
-      <summary class="flex items-center justify-between text-sm md:text-base">
-        <span>FMS & Correctives</span><span class="text-slate-400">▾</span>
-      </summary>
-      <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">
-        Vul per test links/rechts (0–3) in. Warm-up kiest automatisch correctives (mobiliteit → stabiliteit → functioneel),
-        met ASLR hoogste prioriteit.
-      </p>
-      <div id="fmsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3"></div>
-      <div class="mt-3 flex flex-wrap gap-2">
-        <button id="saveFMS" class="btn">Bewaar FMS</button>
-        <button id="clearFMS" class="btn btn-ghost">Reset FMS</button>
-        <span id="fmsHint" class="text-xs muted"></span>
-      </div>
-    </details>
+        <section class="panel pad">
+          <button id="clearHistoryBtn" class="btn danger">Wis geschiedenis</button>
+        </section>
+      </aside>
+    </main>
 
-    <!-- Output -->
-    <section id="warmup" class="card p-4 whitespace-pre-wrap text-[15px] sm:text-base"></section>
-    <section id="needs"  class="card p-4 whitespace-pre-wrap text-[13px] sm:text-[15px] mono"></section>
-    <section id="output" class="card p-4 whitespace-pre-wrap text-[15px] sm:text-base"></section>
-
-    <!-- Exercise cards -->
-    <section class="card p-4">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="text-lg font-semibold">Exercise Cards</h2>
-        <span class="text-xs md:text-sm muted">Gewicht/RPE/reps/afstand + notities. Laatste gewichten onthouden.</span>
-      </div>
-      <div id="cards" class="grid md:grid-cols-2 gap-3"></div>
-    </section>
-
-    <!-- History -->
-    <section class="card p-4">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="text-lg font-semibold">Geschiedenis</h2>
-        <span id="histCount" class="tag">0 sessies</span>
-      </div>
-      <div id="history" class="space-y-3"></div>
-    </section>
-
-    <!-- Sticky actions -->
-    <div class="sticky-actions">
-      <div class="grid grid-cols-3 gap-2 md:gap-3 max-w-5xl mx-auto">
-        <button id="savePlanBtn" class="btn">Bewaar plan</button>
-        <button id="saveLogsBtn" class="btn">Bewaar logs</button>
-        <button id="exportCsvBtn" class="btn btn-ghost">Export CSV</button>
-      </div>
-      <div class="grid grid-cols-2 gap-2 md:gap-3 max-w-5xl mx-auto mt-2">
-        <button id="clearHistoryBtn" class="btn btn-ghost">Wis geschiedenis</button>
-      </div>
+    <div class="sticky">
+      <button id="finishBtn" class="btn primary finish">Finish session</button>
     </div>
   </div>
-<script>
-/* ===========================
-   HYROX PRO GENERATOR — RISE-MODE SCRIPT
-   =========================== */
 
-///// Mini helpers
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-const choice = a => a[Math.floor(Math.random()*a.length)];
-const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
-const nowStr = () => new Date().toLocaleString();
-const pick = arr => choice(arr);
-const toast = (msg)=>{ const t=document.createElement('div'); t.textContent = msg; t.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-black/80 text-white text-sm z-50'; document.body.appendChild(t); setTimeout(()=>t.remove(),1600); };
+  <script>
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => Array.from(document.querySelectorAll(s));
+    const store = {
+      history: "hyrox_thier_history_v1",
+      current: "hyrox_thier_current_v3",
+      rotation: "hyrox_thier_rotation_v1",
+      start: "hyrox_thier_start_v1",
+      theme: "hyrox_thier_theme_v1",
+      fms: "hyrox_thier_fms_v1",
+      loads: "hyrox_thier_loads_v1",
+      settings: "hyrox_thier_settings_v1",
+      pft: "hyrox_thier_pft_v1",
+      deloadFlow: "hyrox_thier_deload_flow_v1"
+    };
 
-///// Keys
-const KEY_HISTORY = "hyrox_history_full_v5_rise";
-const KEY_ROT     = "hyrox_rot_v5_rise";
-const KEY_STRENGTH_ORDER = "hyrox_strength_order_ab_v5_rise";
-const KEY_LOADS   = "hyrox_last_loads_v5_rise";
-const KEY_START   = "hyrox_start_date_v5_rise";
-const KEY_WEEK_RUNS = "hyrox_week_runs_v5_rise";
-const KEY_WEEK_ID   = "hyrox_week_id_v5_rise";
-const KEY_WEEK_CARDIO_COUNTS = "hyrox_week_cardio_counts_v5_rise"; // {run,ski,row,assault}
-const KEY_CURRENT = "hyrox_current_session_v5_rise"; // <-- huidige sessie persistent
+    const equipment = [
+      ["run", "Run / treadmill"], ["ski", "SkiErg"], ["row", "RowErg"], ["bike", "Assault Bike"],
+      ["sled", "Sled"], ["farmer", "Farmers"], ["sandbag", "Sandbag"], ["wallball", "Wall Ball"],
+      ["kb", "Kettlebell"], ["db", "Dumbbells"], ["bb", "Barbell"], ["rings", "Pull-up/TRX"],
+      ["cable", "Cable/bands"], ["box", "Box/bench"]
+    ];
+    const rotation = ["Complete", "Engine", "Strength", "Interval", "Engine", "Aerobic"];
+    const officialStations = [
+      ["SkiErg", "1000 m"], ["Sled Push", "50 m"], ["Sled Pull", "50 m"], ["Burpee Broad Jumps", "80 m"],
+      ["RowErg", "1000 m"], ["Farmers Carry", "200 m"], ["Sandbag Lunges", "100 m"], ["Wall Balls", "100 reps"]
+    ];
+    const deloadWeekFlow = ["Rest", "Rest", "Light Training", "Rest", "PFT", "Rest", "Rest"];
+    const pftParts = [
+      ["run", "1000 meter hardlopen", "Buiten of treadmill @ 2% incline"],
+      ["burpees", "50 Burpee Broad Jumps", "Voorwaartse sprong over 90 cm"],
+      ["lunges", "100 Stationary/Walking Lunges", "Om en om"],
+      ["row", "1000 meter roeien", "Concept2 RowErg"],
+      ["pushups", "30 Hand-Release Push-ups", "Borst los van de grond, handen zichtbaar los"],
+      ["wallballs", "100 Wall Balls", "6 kg mannen, 4 kg vrouwen"]
+    ];
+    const fmsTests = [
+      ["ASLR", "Active Straight Leg Raise", true], ["SM", "Shoulder Mobility", true], ["Ankle", "Ankle Dorsiflexion", true],
+      ["TSPU", "Trunk Stability Push-up", false], ["RS", "Rotary Stability", true], ["IL", "In-line Lunge", true],
+      ["HS", "Hurdle Step", true], ["DS", "Deep Squat", false]
+    ];
+    const correctives = {
+      ASLR: ["90/90 breathing - 5 x 5 ademhalingen", "Assisted leg lowering - 8/zijde", "Hip airplane hold - 3 x 10s/zijde"],
+      SM: ["Open book rotation - 8/zijde", "Wall slides - 10 rustig", "Half-kneeling chop - 8/zijde"],
+      Ankle: ["Knee-to-wall dorsiflexion - 10/zijde", "Soleus stretch - 45s/zijde", "Tempo calf raises - 12"],
+      TSPU: ["Dead bug - 8/zijde", "Front plank - 3 x 30s", "Slow push-up eccentric - 5"],
+      RS: ["Bird dog - 8/zijde", "Half-kneeling Pallof press - 8/zijde", "Bear hover shoulder taps - 10"],
+      IL: ["Split squat iso - 25s/zijde", "Reverse lunge reach - 8/zijde", "Step-up control - 8/zijde"],
+      HS: ["Marching drill - 12/zijde", "Single-leg balance reach - 6/zijde", "Low box step-over - 8/zijde"],
+      DS: ["Goblet squat pry - 8", "T-spine extension on bench - 8", "Squat-to-stand - 8"]
+    };
 
-///// Global session
-let CURRENT_SESSION = { arch:"", planText:"", when:"", intensity:"", items:[], warmup:"", needs: "" };
+    let current = { when: "", arch: "", intensity: "", warmup: "", workout: "", needs: [], items: [] };
 
-///// State & Week logic
-function getOrSetStartDate() {
-  let raw = localStorage.getItem(KEY_START);
-  if (raw) return new Date(raw);
-  const d = new Date();
-  localStorage.setItem(KEY_START, d.toISOString());
-  return d;
-}
-function weekIndexZeroBased() {
-  const start = getOrSetStartDate();
-  const ms = Date.now() - start.getTime();
-  return Math.floor(ms / (7*24*60*60*1000)); // 0,1,2,...
-}
-function displayWeekNumber() {
-  return weekIndexZeroBased() + 1;
-}
-function renderWeekBadge() {
-  $("#weekBadge").textContent = `Week ${displayWeekNumber()}`;
-}
-
-function ensureWeekBuckets() {
-  const wid = String(displayWeekNumber());
-  const cur = localStorage.getItem(KEY_WEEK_ID);
-  if (cur !== wid) {
-    localStorage.setItem(KEY_WEEK_ID, wid);
-    localStorage.setItem(KEY_WEEK_RUNS, "0");
-    localStorage.setItem(KEY_WEEK_CARDIO_COUNTS, JSON.stringify({run:0,ski:0,row:0,assault:0}));
-  }
-}
-function incWeekRun() {
-  const v = parseInt(localStorage.getItem(KEY_WEEK_RUNS)||"0",10)+1;
-  localStorage.setItem(KEY_WEEK_RUNS, String(v));
-}
-function getWeekRunCount(){ return parseInt(localStorage.getItem(KEY_WEEK_RUNS)||"0",10); }
-function getWeekCardioCounts(){
-  try { return JSON.parse(localStorage.getItem(KEY_WEEK_CARDIO_COUNTS)||"{}"); } catch { return {}; }
-}
-function setWeekCardioCounts(m){ localStorage.setItem(KEY_WEEK_CARDIO_COUNTS, JSON.stringify(m)); }
-
-///// Rotation (archetypes)
-const WEEK_ROTATION = [ "Complete", "Engine", "Strength", "Interval", "Engine", "Aerobic" ];
-function rotationIndex(){ return +(localStorage.getItem(KEY_ROT) || 0); }
-function setRotationIndex(i){ localStorage.setItem(KEY_ROT, i % WEEK_ROTATION.length); renderRotInfo(); }
-function nextArch(){ const i = rotationIndex(); const arch = WEEK_ROTATION[i]; setRotationIndex(i+1); return arch; }
-function renderRotInfo(){ const i = rotationIndex(); $("#rotInfo").textContent = `Stap ${i+1}/6 — ${WEEK_ROTATION[i]}`; renderWeekBadge(); }
-
-///// Deload cadence (zonder PFT)
-function cycleInfo() {
-  const wk1 = displayWeekNumber(); // 1-based
-  const mod = ((wk1 - 1) % 8) + 1; // 1..8
-  if (mod === 4) return { phase:"mini-deload" };
-  if (mod === 8) return { phase:"deload" };
-  return { phase:"normal" };
-}
-
-///// Durations & Intensities
-function durations(){
-  const d = $("#duration").value;
-  if (d === "short") return { engine: 30, aerobic: pick([30,35]), completeHypertrophy: 15, completeCond: 20, intervalSets: 6, finisher: 8 };
-  if (d === "long")  return { engine: 40, aerobic: pick([40,45]), completeHypertrophy: 20, completeCond: 30, intervalSets: 10, finisher: 15 };
-  return { engine: 30, aerobic: pick([35,40]), completeHypertrophy: 15, completeCond: 30, intervalSets: 8, finisher: 12 };
-}
-function intensity(){
-  const v = $("#intensity").value;
-  const base = {
-    name:"Normaal", repsStr:"RPE 7–8", strMin:3, strMax:6,
-    wb:[12,15,18,20], sled:[15,20,25,30], carry:[20,30,40],
-    cardioShort:[400,600], cardioLong:[800,1200], engineCue:"RPE 7", defaultRPE:8
-  };
-  if (v==="deload") return { ...base, name:"Deload", repsStr:"RPE 6–7", strMin:3, strMax:5, wb:[12,15], sled:[10,15,20], carry:[20,30], cardioShort:[250,400], cardioLong:[800,1000], defaultRPE:7 };
-  if (v==="hard")   return { ...base, name:"Zwaar",  repsStr:"RPE 8–9", strMin:4, strMax:6, wb:[15,18,20], sled:[20,25,30,40], carry:[30,40], cardioShort:[600,800], cardioLong:[1200,1600], engineCue:"RPE 7–8", defaultRPE:9 };
-  return base;
-}
-
-///// Lifts & Stations
-const lifts = {
-  squat: ["Back Squat (BB)","Front Squat (BB)","Goblet Squat (KB)","Step-up (DB/BB)","Box Pistol Squat"],
-  hinge: ["Deadlift (BB)","Romanian Deadlift (BB)","Hip Thrust (BB)","Kettlebell Swing (1-arm)","GHD Hip Extension","Single Leg Deadlift"],
-  press: ["Military Press (BB)","Push Press (BB)","DB Shoulder Press","Dips (rings/bars)","KB Military Press"],
-  pull:  ["One-arm Row (DB)","Bent-over Row (BB)","Chin-up / Pull-up","Renegade Row (DB)","Inverted Row (TRX)"],
-  lunge: ["Split Squat (DB/BB/KB)","Reverse Lunge (DB/BB)","Walking Lunge (DB/KB)","Front Rack Lunge (BB/KB)"],
-  rotation: ["Cable Chop","Cable Lift","Landmine Rotational Press","Med Ball Rotational Throw"],
-  antirot: ["Pallof Press (band/cable)","Pallof Hold (band/cable)","Anti-rotation Press (half-kneeling)","Offset Farmer Carry"]
-};
-
-const stations = {
-  wallballs: wbArr => `Wall Balls ${$("#wWB").value} kg x ${pick(wbArr)}`,
-  sledPush:  sledArr=> `Sled Push ${$("#wPush").value} kg x ${pick(sledArr)} m`,
-  sledPull:  sledArr=> `Sled Pull ${$("#wPull").value} kg x ${pick(sledArr)} m`,
-  farmer:    carrArr=> `Farmer Carry ${$("#wFarmer").value} kg/hand x ${pick(carrArr)} m`,
-  lunges:    sledArr=> `Sandbag Lunges ${$("#wSandbag").value} kg x ${pick(sledArr)} m`,
-  burpees:   ()=> `${pick([6,8,10])} Burpee Broad Jumps`,
-  erg: m => `${pick(["RowErg","SkiErg","Assault Bike"])} ${m} m`,
-  run: m => `Run @ 2% incline ${m} m`
-};
-
-///// Needs capture
-let NEEDS = new Set();
-const addNeed = x => x && NEEDS.add(x);
-const addBarbell=()=>addNeed("Barbell + plates");
-const addDB=()=>addNeed("Dumbbells");
-const addKB=()=>addNeed("Kettlebells");
-const addBench=()=>addNeed("Bench/box");
-const addBox=()=>addNeed("Plyo box/step");
-const addRings=()=>addNeed("Rings/TRX of pull-up bar");
-const addGHD=()=>addNeed("GHD");
-const addSled=()=>addNeed("Sled + plates");
-const addSandbag=()=>addNeed("Sandbag");
-const addWallball=()=>addNeed("Wall ball + target");
-const addFarmer=()=>addNeed("Kettlebell-paar (farmers)");
-const addRun=()=>addNeed("Treadmill @ 2% incline");
-const addErg=(type)=>{ if(type.includes("Ski")) addNeed("SkiErg"); if(type.includes("Row")) addNeed("RowErg"); if(type.includes("Assault")) addNeed("Assault Bike"); };
-const addCable=()=>addNeed("Cable/band anchor");
-const addBands=()=>addNeed("Resistance bands");
-const addLandmine=()=>addNeed("Landmine/TC attachment");
-const addMedball=()=>addNeed("Medicine ball");
-
-function resetNeeds(){ NEEDS = new Set(); }
-function renderNeeds(){
-  const list = $("#needs");
-  const items = Array.from(NEEDS).sort((a,b)=>a.localeCompare(b));
-  list.textContent = items.length ? `Benodigdheden\n• `+items.join("\n• ") : `Benodigdheden\n• Geen specifieke materialen nodig.`;
-}
-function mapLiftNeeds(name){
-  if (name.includes("(BB)") || ["Deadlift","Romanian Deadlift","Hip Thrust","Military Press","Push Press","Bent-over Row","Front Rack"].some(k=>name.includes(k))) addBarbell();
-  if (name.includes("(DB)") || ["Dumbbell","Renegade Row"].some(k=>name.includes(k))) addDB();
-  if (name.includes("(KB)") || name.includes("Kettlebell")) addKB();
-  if (name.includes("Hip Thrust") || name.includes("Glute Bridge")) addBench();
-  if (name.includes("Step-up") || name.includes("Box")) addBox();
-  if (["Chin-up","Pull-up","Inverted Row","Toes-to-Bar","Dips"].some(k=>name.includes(k))) addRings();
-  if (name.includes("GHD")) addGHD();
-  if (name.includes("Single Leg Deadlift")) addKB();
-  if (name.includes("Cable")) addCable();
-  if (name.includes("Pallof")) { addCable(); addBands(); }
-  if (name.includes("Landmine")) addLandmine();
-  if (name.includes("Med Ball") || name.includes("Medicine")) addMedball();
-  if (name.includes("Lunge")) { if (name.includes("Front Rack")) addBarbell(); else addDB(); }
-  if (name.includes("Split Squat")) addDB();
-  if (name.includes("Offset Farmer")) { addFarmer(); addKB(); }
-}
-function mapStationNeeds(text){
-  if (text.includes("Sled Push") || text.includes("Sled Pull")) addSled();
-  if (text.includes("Farmer Carry")) addFarmer();
-  if (text.includes("Sandbag Lunge")) addSandbag();
-  if (text.includes("Wall Balls")) addWallball();
-  if (text.includes("Run @ 2% incline")) addRun();
-  if (text.includes("RowErg")) addErg("RowErg");
-  if (text.includes("SkiErg")) addErg("SkiErg");
-  if (text.includes("Assault Bike")) addErg("Assault Bike");
-}
-
-///// Strength A/B
-function getStrengthOrder(){ return localStorage.getItem(KEY_STRENGTH_ORDER) || "A"; }
-function flipStrengthOrder(){ localStorage.setItem(KEY_STRENGTH_ORDER, getStrengthOrder()==="A"?"B":"A"); }
-
-///// Persistent loads
-function loadLoads(){ try{ return JSON.parse(localStorage.getItem(KEY_LOADS)||"{}"); }catch{ return {}; } }
-function saveLoads(map){ localStorage.setItem(KEY_LOADS, JSON.stringify(map)); }
-function setLastLoad(ex, val){ const m = loadLoads(); m[ex] = val; saveLoads(m); }
-function getLastLoad(ex){ const m = loadLoads(); return m[ex] || ""; }
-
-///// Exercise capture
-const addItem = obj => CURRENT_SESSION.items.push(obj);
-const defaultRPE = ()=> intensity().defaultRPE;
-
-///// FMS UI + Warm-up
-const FMS_KEY = "hyrox_fms_scores_v1";
-const FMS_TESTS = [
-  {k:"ASLR", name:"ASLR (L/R)"},
-  {k:"SM", name:"Shoulder Mobility (L/R)"},
-  {k:"Ankle", name:"Ankle Dorsiflexion (L/R)"},
-  {k:"TSPU", name:"Trunk Stability Push-up"},
-  {k:"RS", name:"Rotary Stability (L/R)"},
-  {k:"IL", name:"In-line Lunge (L/R)"},
-  {k:"HS", name:"Hurdle Step (L/R)"},
-  {k:"DS", name:"Deep Squat"}
-];
-function loadFMS(){ try{ return JSON.parse(localStorage.getItem(FMS_KEY)||"{}"); }catch{ return {}; } }
-function saveFMS(obj){ localStorage.setItem(FMS_KEY, JSON.stringify(obj)); }
-function renderFMSGrid(){
-  const grid = $("#fmsGrid"); grid.innerHTML = "";
-  const data = loadFMS();
-  FMS_TESTS.forEach(t=>{
-    const hasLR = ["ASLR","SM","Ankle","RS","IL","HS"].includes(t.k);
-    const wrap = document.createElement("div");
-    wrap.innerHTML = `
-      <label class="text-xs block">${t.name}</label>
-      <div class="grid grid-cols-2 gap-2 mt-1">
-        ${hasLR ? `
-          <input class="input" placeholder="L (0-3)" id="f_${t.k}_L" value="${(data[t.k]?.L ?? "")}">
-          <input class="input" placeholder="R (0-3)" id="f_${t.k}_R" value="${(data[t.k]?.R ?? "")}">
-        ` : `
-          <input class="input col-span-2" placeholder="Score (0-3)" id="f_${t.k}" value="${(data[t.k] ?? "")}">
-        `}
-      </div>
-    `;
-    grid.appendChild(wrap);
-  });
-}
-function collectFMS(){
-  const res = {};
-  FMS_TESTS.forEach(t=>{
-    const hasLR = ["ASLR","SM","Ankle","RS","IL","HS"].includes(t.k);
-    if (hasLR){ res[t.k] = { L: ($("#f_"+t.k+"_L").value||"").trim(), R: ($("#f_"+t.k+"_R").value||"").trim() }; }
-    else { res[t.k] = ($("#f_"+t.k).value||"").trim(); }
-  });
-  saveFMS(res);
-  $("#fmsHint").textContent = "Opgeslagen.";
-  setTimeout(()=>$("#fmsHint").textContent="",1500);
-  return res;
-}
-// Simple corrective map + priority
-const FMS_CORRECTIVES = {
-  ASLR: ["Crocodile Breathing — 5×5", "Rib Grab — 6/zijde", "Assisted Leg Lowering — 8/zijde"],
-  SM: ["Rib Grab — 6/zijde", "Half Kneeling Chop/Lift — 6/zijde"],
-  Ankle: ["Half Kneeling Dorsiflexion — 8/zijde", "Ankle Calf Stretch — 45–60s"],
-  TSPU: ["Dead Bug — 8/zijde", "Plank — 3×30–45s"],
-  RS: ["Bird Dog — 8/zijde", "Half Kneeling Pallof — 8/zijde"],
-  IL: ["Split Squat ISO — 20–30s/zijde", "Rear Foot Elevated Split Squat — 8/zijde"],
-  HS: ["Marching Pattern Drill — 10/zijde", "Step-up ISO — 20–30s/zijde"],
-  DS: ["Goblet Squat Pry — 8", "Ankle/T-Spine Opener — 6/zijde"]
-};
-const FMS_PRIORITY = ["ASLR","SM","Ankle","TSPU","RS","IL","HS","DS"];
-function lowestScore(val){
-  if (typeof val === "object") {
-    const L = parseInt(val.L || "3",10), R = parseInt(val.R || "3",10);
-    return Math.min(isNaN(L)?3:L, isNaN(R)?3:R);
-  }
-  const s = parseInt(val||"3",10);
-  return isNaN(s)?3:s;
-}
-function weakSide(val){
-  if (typeof val !== "object") return "";
-  const L = parseInt(val.L||"3",10), R = parseInt(val.R||"3",10);
-  if (isNaN(L) || isNaN(R) || L===R) return "";
-  return (L<R) ? "(focus links)" : "(focus rechts)";
-}
-function buildWarmupFromFMS(){
-  const f = loadFMS();
-  let target=null;
-  for (const k of FMS_PRIORITY){
-    if (f[k]!==undefined && lowestScore(f[k])<=2){ target=k; break; }
-  }
-  if (!target) return "Warm-up — Algemene activatie\n• 5–8 min licht cardio\n• Dynamische mobiliteit: heup, T-spine, enkel";
-  const list = FMS_CORRECTIVES[target] || [];
-  const sideText = weakSide(f[target]);
-  return `Warm-up — Correctives (${target}) ${sideText}
-• ${list[0]||""}
-• ${list[1]||""}
-• ${list[2]||""}`.trim();
-}
-
-///// Exercise Cards rendering
-function renderCards(){
-  const box = $("#cards"); box.innerHTML = "";
-  const rpeOpts = [6,7,8,9,10];
-  CURRENT_SESSION.items.forEach((it, idx)=>{
-    const card = document.createElement("div");
-    card.className = "xcard p-3 md:p-4 rounded-xl border border-slate-200 dark:border-slate-700";
-    const last = it.loadable ? getLastLoad(it.name) : "";
-    card.innerHTML = `
-      <div class="flex items-start justify-between gap-2">
-        <div>
-          <div class="font-medium">${it.name}</div>
-          <div class="text-xs muted">${it.type}${it.target?` • ${it.target}`:""}</div>
-        </div>
-        <span class="tag">${idx+1}</span>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
-        <div>
-          <label class="text-xs muted">Gewicht ${last?`(laatst: ${last})`:""}</label>
-          <input data-k="load" placeholder="${it.loadable?'kg':''}" ${it.loadable?'':'disabled'} value="${last}" />
-        </div>
-        <div>
-          <label class="text-xs muted">RPE</label>
-          <select data-k="rpe">
-            ${rpeOpts.map(v=>`<option ${(+it.rpe===v)?'selected':''} value="${v}">${v}</option>`).join("")}
-          </select>
-        </div>
-        <div>
-          <label class="text-xs muted">Herhalingen / Afstand</label>
-          <input data-k="done" placeholder="bv. 3×5, 500 m, 12/zijde" />
-        </div>
-        <div class="md:col-span-1 col-span-2">
-          <label class="text-xs muted">Notities</label>
-          <input data-k="notes" placeholder="cue/tempo/techniek" />
-        </div>
-      </div>
-    `;
-    card.querySelectorAll("input,select,textarea").forEach(el=>{
-      el.addEventListener("input", ()=>{
-        CURRENT_SESSION.items[idx].log = CURRENT_SESSION.items[idx].log || {};
-        const k = el.getAttribute("data-k");
-        CURRENT_SESSION.items[idx].log[k] = el.value;
-        if (k==="load" && it.loadable){ setLastLoad(it.name, el.value); }
-        persistCurrent();
-      });
-    });
-    box.appendChild(card);
-  });
-}
-
-///// History
-function loadHistory(){ try{ return JSON.parse(localStorage.getItem(KEY_HISTORY)||"[]"); }catch{ return []; } }
-function saveHistory(a){ localStorage.setItem(KEY_HISTORY, JSON.stringify(a.slice(-200))); renderHistory(); }
-function renderHistory(){
-  const hist = loadHistory().slice().reverse();
-  $("#histCount").textContent = `${hist.length} sessies`;
-  const box = $("#history"); box.innerHTML="";
-  hist.forEach(t => {
-    const d=document.createElement("div");
-    d.className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 whitespace-pre-wrap text-sm";
-    d.textContent = (t.warmup? (t.warmup+"\n\n") : "") + (t.needs? (t.needs+"\n\n") : "") + t.planText;
-    box.appendChild(d);
-  });
-}
-
-function savePlanOnly(){
-  const h=loadHistory();
-  h.push({ when: CURRENT_SESSION.when, arch: CURRENT_SESSION.arch, planText: CURRENT_SESSION.planText, items: [], warmup: CURRENT_SESSION.warmup, needs: CURRENT_SESSION.needs });
-  saveHistory(h);
-  toast("Plan opgeslagen");
-}
-function saveLogs(){
-  const h=loadHistory();
-  h.push(JSON.parse(JSON.stringify(CURRENT_SESSION)));
-  saveHistory(h);
-  toast("Logs opgeslagen");
-}
-function exportCSV(){
-  const rows = [["datum","archetype","oefening","doel","gewicht","RPE","gerealiseerd","notities"]];
-  CURRENT_SESSION.items.forEach(it=>{
-    const log = it.log || {};
-    rows.push([
-      CURRENT_SESSION.when,
-      CURRENT_SESSION.arch,
-      it.name.replaceAll(","," "),
-      it.target||"",
-      (log.load||""),
-      (log.rpe||it.rpe||""),
-      (log.done||""),
-      (log.notes||"")
-    ]);
-  });
-  const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = `hyrox_logs_${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-///// Cardio selector with distribution & ≥3 runs/week
-function pickCardioModePreferRunIfNeeded() {
-  const runCount = parseInt(localStorage.getItem(KEY_WEEK_RUNS)||"0",10);
-  const pool = (runCount < 3)
-    ? ["Run","Run","Run","SkiErg","RowErg","Assault Bike"]
-    : ["Run","Run","SkiErg","RowErg","Assault Bike","Run","SkiErg","RowErg","Run"];
-  const mode = pick(pool);
-  if (mode==="Run") incWeekRun();
-  const c = getWeekCardioCounts();
-  if (mode==="Run") c.run=(c.run||0)+1;
-  else if (mode==="SkiErg") c.ski=(c.ski||0)+1;
-  else if (mode==="RowErg") c.row=(c.row||0)+1;
-  else if (mode==="Assault Bike") c.assault=(c.assault||0)+1;
-  setWeekCardioCounts(c);
-  return mode;
-}
-function cardioTextDistance(meters){
-  const mode = pickCardioModePreferRunIfNeeded();
-  if (mode==="Run") { addRun(); return `Run @ 2% incline ${meters} m`; }
-  addErg(mode);
-  return `${mode} ${meters} m`;
-}
-
-///// Compromised run (33% kans)
-function maybeAddCompromisedRun(afterMeters) {
-  if (Math.random() < 0.33) {
-    const txt = cardioTextDistance(afterMeters);
-    mapStationNeeds(txt);
-    addItem({name:txt, target:"", type:"compromised run", loadable:false, rpe: defaultRPE()});
-    return `\nCompromised: ${txt}`;
-  }
-  return "";
-}
-
-///// Builders
-function buildStrength(){
-  const it = intensity();
-  const r = () => pick([...Array(it.strMax - it.strMin + 1)].map((_,i)=>i+it.strMin));
-  const A = { b1: [ pick(lifts.squat), pick(lifts.pull) ], b2: [ pick(lifts.hinge), pick(lifts.press) ] };
-  const B = { b1: [ pick(lifts.hinge), pick(lifts.press) ], b2: [ pick(lifts.squat), pick(lifts.pull) ] };
-  const ord = getStrengthOrder()==="A" ? A : B;
-
-  const all = [...ord.b1, ...ord.b2];
-  all.forEach(n => { mapLiftNeeds(n); addItem({name:n, target:`${r()} reps`, type:"strength", loadable:true, rpe: defaultRPE()}); });
-
-  const fmt = n => `${n} — ${r()} • ~80–87%1RM ${it.repsStr}`;
-  const b1Txt = ord.b1.map(fmt).join("\n• ");
-  const b2Txt = ord.b2.map(fmt).join("\n• ");
-
-  flipStrengthOrder();
-
-  let txt = `Strength — 2×10 min density
-Blok 1 (10 min)
-• ${b1Txt}
-
-Blok 2 (10 min)
-• ${b2Txt}`;
-
-  if (($("#includeFinisher").value||"yes")==="yes"){
-    const fin = buildFinisher();
-    txt += `\n\n${fin}`;
-  }
-  return txt;
-}
-
-function buildFinisher(){
-  const st = shuffle([
-    `Sled Push ${$("#wPush").value} kg x 2×25 m`,
-    `Sled Pull ${$("#wPull").value} kg x 2×25 m`,
-    `Wall Balls ${$("#wWB").value} kg x 100`,
-    `Farmer Carry ${$("#wFarmer").value} kg/hand x 200 m`,
-    `Sandbag Lunges ${$("#wSandbag").value} kg x 100 m`,
-    `Burpee Broad Jumps 80 m`,
-    `SkiErg 1000 m`,
-    `RowErg 1000 m`,
-    `Assault Bike 1000 m`
-  ]).slice(0,2);
-
-  st.forEach(s => { mapStationNeeds(s); addItem({name:s, target:"finisher", type:"finisher", loadable: /(Sled|Wall Balls|Farmer|Sandbag)/.test(s), rpe: defaultRPE()}); });
-
-  return `Hyrox Finisher
-• ${st[0]}
-• ${st[1]}`;
-}
-
-function buildComplete(dur){
-  const it = intensity();
-  const r8_12 = () => pick([8,9,10,11,12]);
-
-  const push   = pick(lifts.press);  mapLiftNeeds(push);
-  const pull   = pick(lifts.pull);   mapLiftNeeds(pull);
-  const squat  = pick(lifts.squat);  mapLiftNeeds(squat);
-  const hinge  = pick(lifts.hinge);  mapLiftNeeds(hinge);
-  const coreEx = Math.random()<0.5 ? pick(lifts.rotation) : pick(lifts.antirot); mapLiftNeeds(coreEx);
-
-  [push,pull,squat,hinge].forEach(n => addItem({name:n, target:`${r8_12()} reps`, type:"hypertrofie", loadable:true, rpe: defaultRPE()}));
-  addItem({name:coreEx, target:`${pick([10,12,15])}/zijde`, type:"core", loadable:false, rpe: defaultRPE()});
-
-  const cShort = intensity().cardioShort;
-  const cardio = cardioTextDistance(pick(cShort));
-  const station = pick([
-    stations.wallballs(intensity().wb),
-    stations.sledPush(intensity().sled),
-    stations.sledPull(intensity().sled),
-    stations.lunges(intensity().sled),
-    stations.farmer(intensity().carry),
-    stations.burpees()
-  ]);
-  mapStationNeeds(cardio); mapStationNeeds(station);
-  addItem({name:cardio, target:"", type:"cardio", loadable:false, rpe: defaultRPE()});
-  addItem({name:station, target:"", type:"station", loadable: /(Sled|Wall Balls|Farmer|Sandbag)/.test(station), rpe: defaultRPE()});
-
-  const compromisedText = maybeAddCompromisedRun(pick([200,250,300]));
-
-  return `Complete — ${nowStr()}
-(1/3) Hypertrofie Circuit — ${dur.completeHypertrophy} min
-• ${push} — ${r8_12()} • ${it.repsStr}
-• ${pull} — ${r8_12()} • ${it.repsStr}
-• ${squat} — ${r8_12()} • ${it.repsStr}
-• ${hinge} — ${r8_12()} • ${it.repsStr}
-• ${coreEx} — ${pick([10,12,15])}/zijde
-
-(2/3) Hyrox Conditioning — ${dur.completeCond} min (Against Clock)
-• ${cardio}
-• ${station}${compromisedText ? compromisedText : ""}`;
-}
-
-function buildEngine(dur){
-  const it = intensity();
-  const c1 = `Run @ 2% incline ${pick(it.cardioLong)} m`; addRun(); mapStationNeeds(c1);
-  const moveA = pick([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull, ...lifts.lunge]); mapLiftNeeds(moveA);
-  const moveB = pick([...lifts.squat, ...lifts.hinge, ...lifts.press, ...lifts.pull, ...lifts.lunge]); mapLiftNeeds(moveB);
-  const aReps = pick([20,25,30,35,40,45,50]);
-  const bReps = pick([20,25,30,35,40,45,50]);
-  const c2 = cardioTextDistance(pick(it.cardioShort)); mapStationNeeds(c2);
-
-  addItem({name:c1, target:"", type:"cardio", loadable:false, rpe: it.defaultRPE});
-  addItem({name:moveA, target:`${aReps} reps`, type:"assistance", loadable:true, rpe: defaultRPE()});
-  addItem({name:c2, target:"", type:"cardio", loadable:false, rpe: it.defaultRPE});
-  addItem({name:moveB, target:`${bReps} reps`, type:"assistance", loadable:true, rpe: defaultRPE()});
-
-  const compromisedText = maybeAddCompromisedRun(pick([200,250,300]));
-
-  return `Engine — ${dur.engine} min
-Cardio 1: ${c1}
-${moveA} — ${aReps} • ${it.engineCue}
-Cardio 2: ${c2}
-${moveB} — ${bReps} • ${it.engineCue}${compromisedText ? compromisedText : ""}`;
-}
-
-function buildInterval(){
-  const it = intensity();
-  const sets  = Math.max(4, Math.min(15, 8));
-  const rest  = 60;
-  const style = "AFAP";
-
-  const seqOut = [];
-  let prevHeavy = false;
-
-  for (let i=1;i<=sets;i++){
-    const parts = [];
-    const c = cardioTextDistance(pick([100,150,200,250]));
-    parts.push(c); mapStationNeeds(c);
-    addItem({name:`Set ${i} cardio`, target:c, type:"interval", loadable:false, rpe: defaultRPE()});
-
-    const bucket = ["sled","carry","wb","push","pull","squat","hinge","lunge","core","bw"];
-    const n = (Math.random()<0.6 ? 3 : 2);
-    let lastHeavy = prevHeavy;
-
-    for (let k=0;k<n;k++){
-      const pool = bucket.filter(ct => !(lastHeavy && (ct==="sled"||ct==="carry")));
-      const cat = pick(pool);
-      let item;
-      if (cat==="sled"){ item = pick([ stations.sledPush(intensity().sled), stations.sledPull(intensity().sled) ]); }
-      else if (cat==="carry"){ item = pick([ stations.farmer(intensity().carry), stations.lunges(intensity().sled) ]); }
-      else if (cat==="wb"){ item = stations.wallballs(intensity().wb); }
-      else if (cat==="bw"){ item = pick([ stations.burpees(), `Push-ups — ${pick([5,6,8,10])}`, `Jump Squats — ${pick([5,6,8,10])}` ]); }
-      else if (cat==="push"){ item = `${pick(lifts.press)} — ${pick([5,6,8,10])}`; mapLiftNeeds(item); }
-      else if (cat==="pull"){ item = `${pick(lifts.pull)} — ${pick([5,6,8,10])}`; mapLiftNeeds(item); }
-      else if (cat==="squat"){ item = `${pick(lifts.squat)} — ${pick([5,6,8,10])}`; mapLiftNeeds(item); }
-      else if (cat==="hinge"){ item = `${pick(lifts.hinge)} — ${pick([5,6,8,10])}`; mapLiftNeeds(item); }
-      else if (cat==="lunge"){ item = `${pick(lifts.lunge)} — ${pick([6,8,10])}/zijde`; mapLiftNeeds(item); }
-      else if (cat==="core"){ const core = Math.random()<0.5 ? pick(lifts.rotation) : pick(lifts.antirot); item = `${core} — ${pick([8,10,12,15])}/zijde`; mapLiftNeeds(core); }
-      parts.push(item);
-      addItem({name:item, target:"", type:"interval", loadable: /(Sled|Wall Balls|Farmer|Sandbag)/.test(item), rpe: defaultRPE()});
-      lastHeavy = (cat==="sled"||cat==="carry");
+    function jsonGet(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key) || ""); } catch { return fallback; }
     }
-    const head = style==="EMOM" ? `Set ${i}: EMOM` : `Set ${i}: AFAP, rust ${rest}s`;
-    seqOut.push(`${head}\n    - ${parts.join("\n    - ")}`);
-    prevHeavy = lastHeavy;
-  }
-  const compromisedText = maybeAddCompromisedRun(pick([200,250]));
-  return `Interval — ${nowStr()}\n${seqOut.join("\n")}${compromisedText ? compromisedText : ""}`;
-}
-
-function buildAerobic(dur){
-  const minutes = dur.aerobic;
-  const mode = pickCardioModePreferRunIfNeeded();
-  const modeText = (mode==="Run") ? "Run @ 2% incline" : mode;
-  if (mode==="Run") addRun(); else addErg(modeText);
-  addItem({name:modeText, target:`${minutes} min`, type:"aerobic", loadable:false, rpe:7});
-  return `Aerobic — ${minutes} min
-${modeText}`;
-}
-
-///// Core generator (Rise-mode: geen pin, geen voltooid, sessie blijft staan tot Volgende)
-function generate(arch){
-  ensureWeekBuckets();
-
-  // Deload via cadence
-  const cyc = cycleInfo();
-  if (cyc.phase==="mini-deload" || cyc.phase==="deload") $("#intensity").value = "deload";
-
-  // reset sessie
-  resetNeeds();
-  CURRENT_SESSION = { arch, planText:"", when: nowStr(), intensity: $("#intensity").value, items:[], warmup:"", needs:"" };
-
-  // FMS warm-up
-  const warm = buildWarmupFromFMS();
-  $("#warmup").textContent = warm;
-  CURRENT_SESSION.warmup = warm;
-
-  const dur = durations();
-  const out = [];
-
-  if (arch==="Complete"){ out.push(buildComplete(dur)); }
-  if (arch==="Engine"){ out.push(buildEngine(dur)); }
-  if (arch==="Strength"){ out.push(buildStrength()); }
-  if (arch==="Interval"){ out.push(buildInterval()); }
-  if (arch==="Aerobic"){ out.push(buildAerobic(dur)); }
-
-  // Needs
-  renderNeeds();
-  CURRENT_SESSION.needs = $("#needs").textContent;
-
-  const text = out.join("\n");
-  CURRENT_SESSION.planText = text;
-  $("#output").textContent = text;
-  renderCards();
-  window.scrollTo({top:0,behavior:"smooth"});
-
-  persistCurrent();
-  return text;
-}
-
-function persistCurrent(){
-  try{ localStorage.setItem(KEY_CURRENT, JSON.stringify(CURRENT_SESSION)); }catch{}
-}
-function loadCurrent(){
-  try{ return JSON.parse(localStorage.getItem(KEY_CURRENT)||"null"); }catch{ return null; }
-}
-
-///// UI bindings
-$("#nextBtn").addEventListener("click", ()=>{
-  // 1) Voeg huidige toe aan geschiedenis (als er een is)
-  if (CURRENT_SESSION && CURRENT_SESSION.planText){
-    const h = loadHistory(); h.push(JSON.parse(JSON.stringify(CURRENT_SESSION))); saveHistory(h);
-  }
-  // 2) Genereer nieuwe volgens override/rotatie
-  const over = $("#archOverride").value;
-  const arch = over || nextArch();
-  generate(arch);
-  toast("Nieuwe sessie gegenereerd");
-});
-
-$("#copyBtn").addEventListener("click", async ()=>{
-  const txt=[$("#warmup").textContent, $("#needs").textContent, $("#output").textContent].filter(Boolean).join("\n\n");
-  if(!txt) return;
-  try{ await navigator.clipboard.writeText(txt); $("#copyBtn").textContent="Gekopieerd!"; setTimeout(()=>$("#copyBtn").textContent="Kopieer plan",1200);}catch{alert("Kopiëren niet gelukt.");}
-});
-
-$("#toggleTheme").addEventListener("click", ()=> document.documentElement.classList.toggle("dark"));
-$("#savePlanBtn").addEventListener("click", savePlanOnly);
-$("#saveLogsBtn").addEventListener("click", saveLogs);
-$("#exportCsvBtn").addEventListener("click", exportCSV);
-$("#clearHistoryBtn").addEventListener("click", ()=>{ if (!confirm("Geschiedenis wissen?")) return; saveHistory([]); });
-
-$("#saveFMS").addEventListener("click", collectFMS);
-$("#clearFMS").addEventListener("click", ()=>{ localStorage.removeItem(FMS_KEY); renderFMSGrid(); $("#fmsHint").textContent="FMS gereset."; setTimeout(()=>$("#fmsHint").textContent="",1200); });
-
-///// Init
-(function init(){
-  renderFMSGrid(); renderHistory(); renderRotInfo(); ensureWeekBuckets();
-  // Probeer huidige sessie te herstellen
-  const cur = loadCurrent();
-  if (cur && cur.planText){
-    CURRENT_SESSION = cur;
-    $("#warmup").textContent = cur.warmup||"";
-    $("#needs").textContent  = cur.needs||"";
-    $("#output").textContent = cur.planText||"";
-    renderCards();
-    return;
-  }
-  // Anders: start nieuwe sessie
-  const i = rotationIndex();
-  const arch = WEEK_ROTATION[i];
-  generate(arch);
-  setRotationIndex(i+1);
-})();
-</script>
+    function jsonSet(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) { return [...arr].sort(() => Math.random() - .5); }
+    function toast(msg) {
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 1500);
+    }
+    function todayText() {
+      return new Date().toLocaleString("nl-NL", { weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+    }
+    function getStartDate() {
+      const raw = localStorage.getItem(store.start);
+      if (raw) return new Date(raw);
+      const d = new Date();
+      localStorage.setItem(store.start, d.toISOString());
+      return d;
+    }
+    function weekNumber() {
+      return Math.max(1, Math.floor((Date.now() - getStartDate().getTime()) / 604800000) + 1);
+    }
+    function cycleNumber() {
+      return Math.floor((weekNumber() - 1) / 8) + 1;
+    }
+    function cycleWeekNumber() {
+      return ((weekNumber() - 1) % 8) + 1;
+    }
+    function cyclePhase() {
+      const mod = cycleWeekNumber();
+      if (mod === 4) return "mini-deload";
+      if (mod === 8) return "deload";
+      return "normal";
+    }
+    function pftRecords() {
+      return jsonGet(store.pft, []);
+    }
+    function pftForCycle(cycle, kind) {
+      return pftRecords().filter((r) => r.cycle === cycle && r.kind === kind).slice(-1)[0] || null;
+    }
+    function pftKindForCurrentCycle() {
+      return pftForCycle(cycleNumber(), "baseline") ? "retest" : "baseline";
+    }
+    function parseTime(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return null;
+      const parts = raw.split(":").map((part) => Number(part));
+      if (parts.some((part) => !Number.isFinite(part) || part < 0)) return null;
+      if (parts.length === 1) return Math.round(parts[0]);
+      if (parts.length === 2) return Math.round(parts[0] * 60 + parts[1]);
+      if (parts.length === 3) return Math.round(parts[0] * 3600 + parts[1] * 60 + parts[2]);
+      return null;
+    }
+    function formatTime(seconds) {
+      if (!Number.isFinite(seconds)) return "";
+      const sign = seconds < 0 ? "-" : "";
+      const abs = Math.abs(Math.round(seconds));
+      const h = Math.floor(abs / 3600);
+      const m = Math.floor((abs % 3600) / 60);
+      const s = abs % 60;
+      if (h) return `${sign}${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      return `${sign}${m}:${String(s).padStart(2, "0")}`;
+    }
+    function pftComparison(record) {
+      if (record.kind === "baseline") return "Baseline opgeslagen.";
+      const baseline = pftForCycle(record.cycle, "baseline");
+      if (!baseline) return "Geen baseline gevonden voor deze cyclus.";
+      const diff = record.totalSeconds - baseline.totalSeconds;
+      const pct = baseline.totalSeconds ? Math.abs(diff / baseline.totalSeconds * 100).toFixed(1) : "0.0";
+      return diff < 0
+        ? `${formatTime(Math.abs(diff))} sneller dan baseline (${pct}%).`
+        : diff > 0
+          ? `${formatTime(diff)} langzamer dan baseline (${pct}%).`
+          : "Exact gelijk aan baseline.";
+    }
+    function activeIntensity() {
+      const chosen = $("#intensity").value;
+      if (chosen !== "auto") return chosen;
+      return cyclePhase() === "normal" ? "normal" : "deload";
+    }
+    function intensityProfile() {
+      const value = activeIntensity();
+      const base = {
+        value, label: value === "hard" ? "Zwaar" : value === "deload" ? "Deload" : "Normaal",
+        rpe: value === "hard" ? "RPE 8-9" : value === "deload" ? "RPE 6-7" : "RPE 7-8",
+        defaultRpe: value === "hard" ? 9 : value === "deload" ? 7 : 8,
+        strengthSets: value === "hard" ? "4-6" : "3-5",
+        cardioShort: value === "hard" ? [500, 600, 800] : value === "deload" ? [250, 300, 400] : [400, 500, 600],
+        cardioLong: value === "hard" ? [1200, 1500, 1600] : value === "deload" ? [800, 1000] : [1000, 1200],
+        stationScale: value === "hard" ? 1.1 : value === "deload" ? .65 : .85
+      };
+      return base;
+    }
+    function durationProfile() {
+      const d = $("#duration").value;
+      if (d === "short") return { complete: 20, strength: 35, engine: 40, aerobic: 40, intervalSets: 6, raceBlocks: 4 };
+      if (d === "long") return { complete: 40, strength: 55, engine: 60, aerobic: 60, intervalSets: 10, raceBlocks: 8 };
+      return { complete: 30, strength: 45, engine: 50, aerobic: 50, intervalSets: 8, raceBlocks: 6 };
+    }
+    function eq() {
+      const selected = {};
+      $$("#equipment input").forEach((input) => { selected[input.value] = input.checked; });
+      return selected;
+    }
+    function available(keys) {
+      const selected = eq();
+      return keys.every((key) => selected[key]);
+    }
+    function needFor(name) {
+      const needs = [];
+      if (/Sled/.test(name)) needs.push("Sled + plates");
+      if (/SkiErg/.test(name)) needs.push("SkiErg");
+      if (/RowErg/.test(name)) needs.push("RowErg");
+      if (/Assault Bike/.test(name)) needs.push("Assault Bike");
+      if (/Run/.test(name)) needs.push("Treadmill of looproute");
+      if (/Farmer/.test(name)) needs.push("Farmers handles of zware kettlebells");
+      if (/Sandbag/.test(name)) needs.push("Sandbag");
+      if (/Wall Ball/.test(name)) needs.push("Wall ball + target");
+      if (/\bBB\b|Barbell|Deadlift|Squat|Push Press|Front Rack/.test(name)) needs.push("Barbell + plates");
+      if (/\bDB\b|Dumbbell/.test(name)) needs.push("Dumbbells");
+      if (/\bKB\b|Kettlebell|Goblet/.test(name)) needs.push("Kettlebells");
+      if (/Pull-up|TRX|Ring|Dips/.test(name)) needs.push("Pull-up bar/TRX/rings");
+      if (/Cable|Pallof|Band/.test(name)) needs.push("Cable/bands");
+      if (/Box|Bench|Step-up/.test(name)) needs.push("Box/bench");
+      return needs;
+    }
+    function addItem(name, target, type, loadable = false) {
+      const item = { name, target, type, loadable, rpe: intensityProfile().defaultRpe, log: {} };
+      current.items.push(item);
+      current.needs.push(...needFor(name));
+      return name;
+    }
+    function chooseMovement(group) {
+      const pools = {
+        squat: [["Back Squat (BB)", ["bb"]], ["Front Squat (BB)", ["bb"]], ["Goblet Squat (KB)", ["kb"]], ["Step-up (DB)", ["db", "box"]]],
+        hinge: [["Deadlift (BB)", ["bb"]], ["Romanian Deadlift (BB)", ["bb"]], ["Hip Thrust (BB)", ["bb", "box"]], ["Kettlebell Swing", ["kb"]]],
+        press: [["Push Press (BB)", ["bb"]], ["Military Press (BB)", ["bb"]], ["DB Shoulder Press", ["db"]], ["Dips", ["rings"]]],
+        pull: [["Bent-over Row (BB)", ["bb"]], ["One-arm Row (DB)", ["db"]], ["Pull-up", ["rings"]], ["Inverted Row (TRX)", ["rings"]]],
+        lunge: [["Walking Lunge (DB)", ["db"]], ["Front Rack Lunge (BB)", ["bb"]], ["Reverse Lunge (KB)", ["kb"]]],
+        core: [["Pallof Press", ["cable"]], ["Dead Bug", []], ["Side Plank", []], ["Cable Chop", ["cable"]]]
+      };
+      const valid = pools[group].filter(([, keys]) => available(keys));
+      return (valid.length ? pick(valid) : pools[group].find(([, keys]) => keys.length === 0) || pools[group][0])[0];
+    }
+    function cardio(distance, preferRun = false) {
+      const selected = [];
+      if (available(["run"])) selected.push(["Run", `Run ${distance} m @ ${$("#incline").value}% incline`]);
+      if (available(["ski"])) selected.push(["SkiErg", `SkiErg ${distance} m`]);
+      if (available(["row"])) selected.push(["RowErg", `RowErg ${distance} m`]);
+      if (available(["bike"])) selected.push(["Assault Bike", `Assault Bike ${Math.max(8, Math.round(distance / 80))} cal`]);
+      if (!selected.length) return "Cardio naar keuze " + distance + " m-equivalent";
+      if (preferRun && selected.some(([k]) => k === "Run")) return selected.find(([k]) => k === "Run")[1];
+      return pick(selected)[1];
+    }
+    function station() {
+      const scale = intensityProfile().stationScale;
+      const options = [];
+      if (available(["sled"])) {
+        options.push(`Sled Push ${$("#wPush").value} kg x ${Math.round(25 * scale)} m`);
+        options.push(`Sled Pull ${$("#wPull").value} kg x ${Math.round(25 * scale)} m`);
+      }
+      if (available(["farmer"])) options.push(`Farmer Carry ${$("#wFarmer").value} kg/hand x ${Math.round(80 * scale)} m`);
+      if (available(["sandbag"])) options.push(`Sandbag Lunges ${$("#wSandbag").value} kg x ${Math.round(50 * scale)} m`);
+      if (available(["wallball"])) options.push(`Wall Balls ${$("#wWall").value} kg x ${Math.round(50 * scale)}`);
+      options.push(`Burpee Broad Jumps x ${Math.round(40 * scale)} m`);
+      return pick(options);
+    }
+    function fmsWarmup() {
+      const useFms = $("#useFms")?.checked;
+      if (!useFms) return "Warm-up\n- 5-8 min rustig cardio\n- Dynamische heup/enkel/T-spine flow\n- 2 opbouwrondes van de eerste oefeningen";
+      const data = jsonGet(store.fms, {});
+      for (const [key] of fmsTests) {
+        const value = data[key];
+        if (value === undefined) continue;
+        const scores = typeof value === "object" ? [Number(value.L || 3), Number(value.R || 3)] : [Number(value || 3)];
+        if (Math.min(...scores) <= 2) {
+          const side = typeof value === "object" && Number(value.L) !== Number(value.R)
+            ? (Number(value.L) < Number(value.R) ? " - focus links" : " - focus rechts")
+            : "";
+          return `Warm-up (${key}${side})\n- ${correctives[key].join("\n- ")}\n- 5 min rustig ${available(["run"]) ? "lopen" : "cardio"}`;
+        }
+      }
+      return "Warm-up\n- 5-8 min rustig cardio\n- Dynamische heup/enkel/T-spine flow\n- 2 opbouwrondes van de eerste oefeningen";
+    }
+    function buildStrength() {
+      const p = intensityProfile();
+      const d = durationProfile();
+      const a = chooseMovement("squat");
+      const b = chooseMovement("pull");
+      const c = chooseMovement("hinge");
+      const e = chooseMovement("press");
+      [a, b, c, e].forEach((m) => addItem(m, `${p.strengthSets} x 3-6`, "Strength", true));
+      let text = `Strength - ${d.strength} min\nFor quality, not for time\n\nMain lifts\n- ${a}: ${p.strengthSets} sets x 3-6 reps, ${p.rpe}, rust 2-3 min\n- ${c}: ${p.strengthSets} sets x 3-6 reps, ${p.rpe}, rust 2-3 min\n\nAccessory work\n- ${b}: 3 sets x 6-10 reps, rustig gecontroleerd\n- ${e}: 3 sets x 6-10 reps, rustig gecontroleerd\n\nDoel: lagere rep ranges, volledige rust, perfecte techniek. Stop 1-2 reps voor technisch verval.`;
+      if ($("#finisher").value === "yes") {
+        const s1 = addItem(station(), "Finisher", "HYROX", true);
+        const s2 = addItem(cardio(400, true), "Finisher", "Cardio");
+        text += `\n\nOptionele techniek-finisher, niet op tijd\n- ${s1}: 2-3 nette sets, volledige controle\n- ${s2}: 2-3 rustige herhalingen, focus op transitie`;
+      }
+      return text;
+    }
+    function buildComplete() {
+      const p = intensityProfile();
+      const d = durationProfile();
+      const movements = [chooseMovement("press"), chooseMovement("pull"), chooseMovement("squat"), chooseMovement("hinge"), chooseMovement("core")];
+      movements.forEach((m) => addItem(m, "2-4 sets x 8-12 reps", /Dead Bug|Side Plank/.test(m) ? "Core" : "Daily work", !/Dead Bug|Side Plank/.test(m)));
+      const c = addItem(cardio(p.cardioShort[0], true), "Managed volume", "Cardio");
+      return `Complete - ${d.complete} min\nBasic daily workout, manageable sets and volume\n\nStrength circuit\n- ${movements.map((m) => `${m}: 2-4 sets x 8-12 reps`).join("\n- ")}\n\nControlled conditioning\n- ${c}: ontspannen stevig, geen race effort\n\nDoel: goed uitvoerbare training die je vaak kunt herhalen. Laat 2-3 reps in reserve.`;
+    }
+    function buildEngine() {
+      const p = intensityProfile();
+      const d = durationProfile();
+      const c1 = addItem(cardio(p.cardioLong[0], true), "Engine", "Cardio");
+      const m1 = addItem(chooseMovement("lunge"), "20-40 reps", "Assistance", true);
+      const c2 = addItem(cardio(p.cardioShort[1] || p.cardioShort[0]), "Engine", "Cardio");
+      const s = addItem(station(), "Engine", "HYROX", true);
+      return `Engine - ${d.engine} min\nHigh volume big sets, race intensity\n\nRepeat as many quality rounds as possible\n- ${c1}\n- ${m1}\n- ${c2}\n- ${s}\n\nDoel: HYROX race-intensiteit nabootsen. Grote sets, mentale en fysieke racevoorbereiding, constante output zonder sprintstart.`;
+    }
+    function buildInterval() {
+      const p = intensityProfile();
+      const d = durationProfile();
+      const sets = [];
+      for (let i = 1; i <= d.intervalSets; i++) {
+        const c = addItem(cardio(pick([100, 150, 200, 250])), `Set ${i}`, "Interval");
+        const s = addItem(station(), `Set ${i}`, "HYROX", true);
+        const m = addItem(chooseMovement(pick(["squat", "hinge", "press", "pull", "core"])), `Set ${i}`, "Interval", true);
+        const work = pick([60, 75, 90]);
+        const rest = pick([45, 60, 75]);
+        const intent = i % 2 === 0 ? "hoog tempo" : "controleerbaar tempo";
+        sets.push(`Set ${i}: ${work}s work / ${rest}s rest - ${intent}\n- ${c}\n- ${s}\n- ${m}: ${pick([6, 8, 10, 12])} reps`);
+      }
+      return `Interval - ${todayText()}\nFocus op pace en/of snelheid. Herhaalbare sets voor accurate pacing, met bewust verschil tussen hoge en lagere intensiteit.\n\n${sets.join("\n\n")}`;
+    }
+    function buildAerobic() {
+      const d = durationProfile();
+      const c = addItem(cardio(d.aerobic * 100, true), `${d.aerobic} min`, "Aerobic");
+      return `Aerobic - ${d.aerobic} min\n- ${c}\n\nConversational effort. Houd de inspanning zo gelijk mogelijk en verander het tempo minimaal door de hele sessie.`;
+    }
+    function buildRest() {
+      return `Rest day - Week ${cycleWeekNumber()} / Cyclus ${cycleNumber()}\n\n- Geen training\n- 20-40 min wandelen mag\n- Mobiliteit alleen als het herstel beter voelt\n- Vroeg slapen, goed eten, rustig blijven\n\nDoel: vermoeidheid laten zakken zodat de PFT of nieuwe cyclus beter wordt.`;
+    }
+    function buildLightTraining() {
+      const c = addItem(cardio(1200, true), "20-25 min easy", "Deload cardio");
+      const m1 = addItem(chooseMovement("core"), "2 x 8-10", "Activation");
+      const m2 = addItem(chooseMovement("lunge"), "2 x 8/zijde", "Technique", true);
+      return `Light Training - Deload week\n30-40 min, RPE 5-6\n\n- ${c}: conversational, geen versnellingen\n- ${m1}: rustig en technisch\n- ${m2}: licht, geen spierpijn veroorzaken\n- 5-8 min mobility flow\n\nDoel: doorbloeding, ritme en scherpte. Je moet frisser eindigen dan je begon.`;
+    }
+    function buildPFT() {
+      const kind = pftKindForCurrentCycle();
+      pftParts.forEach(([, name, note]) => addItem(name, note, "PFT"));
+      return `PFT ${kind === "baseline" ? "Baseline" : "Retest"} - Cyclus ${cycleNumber()}\nVoer alle onderdelen achter elkaar uit en noteer je totale tijd.\n\n${pftParts.map(([, name, note], i) => `${i + 1}. ${name}\n   ${note}`).join("\n")}\n\nRegels\n- Run buiten of treadmill @ 2% incline\n- Burpee Broad Jump: voorwaartse sprong over 90 cm\n- Wall Balls: 6 kg mannen, 4 kg vrouwen\n- Totaaltijd is leidend; splits zijn optioneel maar nuttig\n\nNa afloop: vul je PFT tijd hieronder in en bewaar hem.`;
+    }
+    function buildRaceSim() {
+      const d = durationProfile();
+      const blocks = officialStations.slice(0, d.raceBlocks);
+      const lines = blocks.map(([name, target], idx) => {
+        const run = addItem(cardio(1000, true), `Run voor station ${idx + 1}`, "Race sim");
+        const stationText = name === "Sled Push" ? `Sled Push ${$("#wPush").value} kg x ${target}`
+          : name === "Sled Pull" ? `Sled Pull ${$("#wPull").value} kg x ${target}`
+          : name === "Farmers Carry" ? `Farmer Carry ${$("#wFarmer").value} kg/hand x ${target}`
+          : name === "Sandbag Lunges" ? `Sandbag Lunges ${$("#wSandbag").value} kg x ${target}`
+          : name === "Wall Balls" ? `Wall Balls ${$("#wWall").value} kg x ${target}`
+          : `${name} ${target}`;
+        addItem(stationText, "Race sim", "HYROX", /Sled|Farmer|Sandbag|Wall/.test(stationText));
+        return `${idx + 1}. ${run}\n   ${stationText}`;
+      });
+      return `Race Sim - ${blocks.length}/8 stations\n${lines.join("\n")}\n\nFocus: kalme runs, scherpe transities, wall balls nooit tot falen.`;
+    }
+    function generate(arch) {
+      current = { when: todayText(), arch, intensity: activeIntensity(), warmup: fmsWarmup(), workout: "", needs: [], items: [] };
+      if (arch === "PFT") {
+        current.warmup = "PFT warm-up\n- 8-10 min rustig cardio\n- 2 rondes: 5 lunges/zijde, 5 push-ups, 5 wall balls, 5 burpee broad jumps rustig\n- 2 korte opbouwstukken op run/row\n- Start pas als je warm bent, niet vermoeid";
+      }
+      if (arch === "Rest") {
+        current.warmup = "Herstel\n- Geen warm-up nodig\n- Optioneel: 10 min rustige mobiliteit of wandelen";
+      }
+      if (arch === "Light Training") {
+        current.warmup = "Deload warm-up\n- 5-8 min easy cardio\n- Rustige mobiliteit voor heup, enkel en T-spine\n- Alles op RPE 5-6";
+      }
+      if (arch === "Complete") current.workout = buildComplete();
+      if (arch === "Engine") current.workout = buildEngine();
+      if (arch === "Strength") current.workout = buildStrength();
+      if (arch === "Interval") current.workout = buildInterval();
+      if (arch === "Aerobic") current.workout = buildAerobic();
+      if (arch === "Race Sim") current.workout = buildRaceSim();
+      if (arch === "PFT") current.workout = buildPFT();
+      if (arch === "Rest") current.workout = buildRest();
+      if (arch === "Light Training") current.workout = buildLightTraining();
+      current.needs = [...new Set(current.needs)].sort();
+      renderCurrent();
+      saveCurrent();
+    }
+    function nextArch() {
+      const cycle = cycleNumber();
+      if (!pftForCycle(cycle, "baseline")) return "PFT";
+      if (cycleWeekNumber() === 8) {
+        const flow = jsonGet(store.deloadFlow, {});
+        const key = String(cycle);
+        const idx = flow[key] || 0;
+        flow[key] = (idx + 1) % deloadWeekFlow.length;
+        jsonSet(store.deloadFlow, flow);
+        return deloadWeekFlow[idx];
+      }
+      const i = Number(localStorage.getItem(store.rotation) || 0);
+      localStorage.setItem(store.rotation, String((i + 1) % rotation.length));
+      return rotation[i % rotation.length];
+    }
+    function renderCurrent() {
+      $("#title").textContent = `${current.arch} sessie`;
+      $("#meta").textContent = `${current.when} - ${intensityProfile().label}`;
+      $("#warmup").textContent = current.warmup;
+      $("#workout").textContent = current.workout;
+      $("#needs").textContent = "- " + (current.needs.length ? current.needs.join("\n- ") : "Geen specifieke materialen");
+      $("#itemCount").textContent = `${current.items.length} items`;
+      renderCards();
+      renderPftPanel();
+      renderBadges();
+    }
+    function renderCards() {
+      const loads = jsonGet(store.loads, {});
+      $("#cards").innerHTML = current.items.map((item, idx) => `
+        <div class="log-card">
+          <div class="between">
+            <div>
+              <strong>${item.name}</strong>
+              <div class="tiny muted">${item.type}${item.target ? " - " + item.target : ""}</div>
+            </div>
+            <span class="tag">${idx + 1}</span>
+          </div>
+          <div class="grid four" style="margin-top:10px">
+            <label>Gewicht${loads[item.name] ? " (laatst " + loads[item.name] + ")" : ""}
+              <input data-i="${idx}" data-k="load" value="${item.log.load || loads[item.name] || ""}" ${item.loadable ? "" : "disabled"}>
+            </label>
+            <label>RPE
+              <select data-i="${idx}" data-k="rpe">${[6,7,8,9,10].map((v) => `<option value="${v}" ${Number(item.log.rpe || item.rpe) === v ? "selected" : ""}>${v}</option>`).join("")}</select>
+            </label>
+            <label>Gedaan<input data-i="${idx}" data-k="done" value="${item.log.done || ""}" placeholder="bv. 4x6, 800m"></label>
+            <label>Notitie<input data-i="${idx}" data-k="note" value="${item.log.note || ""}" placeholder="cue/tempo"></label>
+          </div>
+        </div>
+      `).join("");
+      $$("#cards input, #cards select").forEach((el) => {
+        el.addEventListener("input", () => {
+          const item = current.items[Number(el.dataset.i)];
+          item.log[el.dataset.k] = el.value;
+          if (el.dataset.k === "load" && item.loadable) {
+            const nextLoads = jsonGet(store.loads, {});
+            nextLoads[item.name] = el.value;
+            jsonSet(store.loads, nextLoads);
+          }
+          saveCurrent();
+        });
+      });
+    }
+    function renderHistory() {
+      const history = jsonGet(store.history, []);
+      $("#historyCount").textContent = `${history.length} sessies`;
+      $("#history").innerHTML = history.slice().reverse().slice(0, 20).map((entry) => `
+        <div class="history-item"><strong>${entry.arch} - ${entry.when}</strong>\n${entry.workout}</div>
+      `).join("") || `<p class="muted small">Nog geen opgeslagen sessies.</p>`;
+    }
+    function renderPftPanel() {
+      const records = pftRecords();
+      const latest = records.slice(-1)[0] || null;
+      const isPft = current.arch === "PFT";
+      $("#pftForm").style.display = isPft ? "grid" : "none";
+      $("#savePftBtn").style.display = isPft ? "block" : "none";
+      $("#pftBadge").textContent = latest ? `Laatste: ${formatTime(latest.totalSeconds)}` : "Geen tijd";
+      $("#pftSummary").textContent = isPft
+        ? `Deze sessie wordt opgeslagen als ${pftKindForCurrentCycle()} voor cyclus ${cycleNumber()}.`
+        : "PFT komt automatisch als baseline aan het begin van de cyclus en als retest in week 8.";
+      $("#pftHistory").innerHTML = records.slice().reverse().slice(0, 6).map((r) => `
+        <div class="history-item"><strong>Cyclus ${r.cycle} - ${r.kind} - ${formatTime(r.totalSeconds)}</strong>\n${pftComparison(r)}</div>
+      `).join("") || `<p class="muted small">Nog geen PFT tijden opgeslagen.</p>`;
+    }
+    function renderBadges() {
+      const phase = cyclePhase();
+      const i = Number(localStorage.getItem(store.rotation) || 0);
+      $("#weekBadge").textContent = `Cyclus ${cycleNumber()} - week ${cycleWeekNumber()}`;
+      $("#phaseBadge").textContent = phase === "normal" ? "Normaal" : phase;
+      $("#rotationBadge").textContent = `Rotatie ${(i % rotation.length) + 1}/6 - ${rotation[i % rotation.length]}`;
+    }
+    function saveCurrent() { jsonSet(store.current, current); }
+    function saveToHistory(withLogs) {
+      if (!current.workout) return;
+      const history = jsonGet(store.history, []);
+      const copy = JSON.parse(JSON.stringify(current));
+      if (!withLogs) copy.items = [];
+      history.push(copy);
+      jsonSet(store.history, history.slice(-200));
+      renderHistory();
+      renderPftPanel();
+      toast(withLogs ? "Logs opgeslagen" : "Plan opgeslagen");
+    }
+    function confetti() {
+      const colors = ["#d4a950", "#2dd4bf", "#f7f2e8", "#fb7185", "#8f6425"];
+      for (let i = 0; i < 54; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = `${Math.random() * 260}ms`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 1500);
+      }
+    }
+    function finishSession() {
+      if (!current.workout) return;
+      const ok = confirm("Sessie afronden en doorgaan naar de volgende training?");
+      if (!ok) return;
+      saveToHistory(true);
+      confetti();
+      toast("Sessie afgerond");
+      setTimeout(() => generate(nextArch()), 850);
+    }
+    function copyPlan() {
+      const text = [current.warmup, current.workout, $("#needs").textContent].filter(Boolean).join("\n\n");
+      navigator.clipboard.writeText(text).then(() => toast("Plan gekopieerd")).catch(() => {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+        toast("Plan gekopieerd");
+      });
+    }
+    function exportCsv() {
+      const rows = [["datum", "trainingstype", "oefening", "doel", "type", "gewicht", "rpe", "gedaan", "notitie"]];
+      current.items.forEach((item) => rows.push([
+        current.when, current.arch, item.name, item.target || "", item.type,
+        item.log.load || "", item.log.rpe || item.rpe || "", item.log.done || "", item.log.note || ""
+      ]));
+      const csv = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `hyrox_logs_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function renderSetup() {
+      $("#equipment").innerHTML = equipment.map(([key, label]) => `
+        <label class="check"><input type="checkbox" value="${key}" checked> ${label}</label>
+      `).join("");
+      $("#stationList").innerHTML = officialStations.map(([name, target], i) => `
+        <div class="station"><div class="num">${i + 1}</div><div><strong>${name}</strong><div class="tiny muted">${target} na 1 km run</div></div></div>
+      `).join("");
+      const fms = jsonGet(store.fms, {});
+      $("#fms").innerHTML = fmsTests.map(([key, label, lr]) => `
+        <label>${label}
+          ${lr ? `<div class="grid two"><input id="f_${key}_L" inputmode="numeric" placeholder="L" value="${fms[key]?.L || ""}"><input id="f_${key}_R" inputmode="numeric" placeholder="R" value="${fms[key]?.R || ""}"></div>`
+               : `<input id="f_${key}" inputmode="numeric" placeholder="Score" value="${fms[key] || ""}">`}
+        </label>
+      `).join("");
+      const settings = jsonGet(store.settings, null);
+      if (settings) {
+        Object.entries(settings).forEach(([id, value]) => {
+          const el = $("#" + id);
+          if (!el) return;
+          if (el.type === "checkbox") el.checked = value === true || value === "true";
+          else el.value = value;
+        });
+      }
+      const syncFmsPanel = () => {
+        const on = $("#useFms").checked;
+        $("#fmsPanel").style.display = on ? "block" : "none";
+        if (on) $("#fmsPanel").setAttribute("open", "");
+        else $("#fmsPanel").removeAttribute("open");
+      };
+      syncFmsPanel();
+      $$("input, select").forEach((el) => {
+        if (el.closest("#cards") || el.closest("#fms") || el.closest("#pftPanel")) return;
+        el.addEventListener("change", () => {
+          const ids = ["duration","intensity","finisher","useFms","wPush","wPull","wFarmer","wSandbag","wWall","incline"];
+          const next = {};
+          ids.forEach((id) => {
+            const control = $("#" + id);
+            next[id] = control.type === "checkbox" ? control.checked : control.value;
+          });
+          jsonSet(store.settings, next);
+          syncFmsPanel();
+          if (current.workout) generate(current.arch);
+        });
+      });
+    }
+    function saveFms() {
+      const data = {};
+      fmsTests.forEach(([key, , lr]) => {
+        if (lr) data[key] = { L: $(`#f_${key}_L`).value.trim(), R: $(`#f_${key}_R`).value.trim() };
+        else data[key] = $(`#f_${key}`).value.trim();
+      });
+      jsonSet(store.fms, data);
+      generate(current.arch || nextArch());
+      toast("FMS opgeslagen");
+    }
+    function savePft() {
+      const totalSeconds = parseTime($("#pftTotal").value);
+      if (!totalSeconds) {
+        toast("Vul een geldige totaaltijd in");
+        return;
+      }
+      const splitIds = ["Run", "Burpees", "Lunges", "Row", "Pushups", "Wallballs"];
+      const splits = {};
+      splitIds.forEach((id) => {
+        const seconds = parseTime($(`#pft${id}`).value);
+        if (seconds) splits[id.toLowerCase()] = seconds;
+      });
+      const records = pftRecords();
+      const record = {
+        cycle: cycleNumber(),
+        week: cycleWeekNumber(),
+        kind: pftKindForCurrentCycle(),
+        when: todayText(),
+        totalSeconds,
+        splits
+      };
+      records.push(record);
+      jsonSet(store.pft, records);
+      ["Total", ...splitIds].forEach((id) => { $(`#pft${id}`).value = ""; });
+      renderPftPanel();
+      toast(`PFT opgeslagen: ${formatTime(totalSeconds)}`);
+    }
+    function initTheme() {
+      const saved = localStorage.getItem(store.theme);
+      const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", dark);
+      $("#themeBtn").addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        localStorage.setItem(store.theme, document.documentElement.classList.contains("dark") ? "dark" : "light");
+      });
+    }
+    function initEvents() {
+      $("#copyBtn").addEventListener("click", copyPlan);
+      $("#savePlanBtn").addEventListener("click", () => saveToHistory(false));
+      $("#finishBtn").addEventListener("click", finishSession);
+      $("#exportBtn").addEventListener("click", exportCsv);
+      $("#saveFmsBtn").addEventListener("click", saveFms);
+      $("#savePftBtn").addEventListener("click", savePft);
+      $("#resetFmsBtn").addEventListener("click", () => { localStorage.removeItem(store.fms); renderSetup(); generate(current.arch || nextArch()); toast("FMS gereset"); });
+      $("#clearHistoryBtn").addEventListener("click", () => {
+        if (!confirm("Geschiedenis wissen?")) return;
+        jsonSet(store.history, []);
+        renderHistory();
+      });
+    }
+    function init() {
+      initTheme();
+      renderSetup();
+      initEvents();
+      renderHistory();
+      renderBadges();
+      const saved = jsonGet(store.current, null);
+      if (saved && saved.workout) {
+        current = saved;
+        renderCurrent();
+      } else {
+        generate(nextArch());
+      }
+    }
+    init();
+  </script>
 </body>
 </html>
